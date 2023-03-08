@@ -6,7 +6,7 @@ const useSessionStore = create<SessionStore>()(
     (_set) => ({
       session: {
         id: null,
-        current_video: null,
+        current_song: null,
         host: null,
       },
       username: null,
@@ -34,9 +34,19 @@ export const logout = () =>
 //   useSessionStore.setState({ session: { ...session } });
 // };
 
+export const setCurrentSong = (currSong: string) => {
+  const session = useSessionStore.getState().session
+  useSessionStore.setState({session: {...session, current_song:{...session.current_song, id: currSong}}})
+};
+
 export const setSession = (session: ISession | Partial<ISession>) => {
+  const _session = useSessionStore.getState().session
+
   useSessionStore.setState({
-    session: session as ISession,
+    session: {
+      ..._session,
+      ...session
+    }
   });
 };
 
@@ -45,9 +55,9 @@ export default useSessionStore;
 export interface ISession {
   id: string | null;
   host: string | null;
-  current_video: {
-    id: string;
-    status: string;
+  current_song: {
+    id?: string;
+    status?: string;
   } | null;
 }
 
@@ -55,13 +65,4 @@ export interface SessionStore {
   session: ISession;
   username: string | null;
   isLogin: boolean;
-}
-
-export enum YTPlaybackStatus {
-  Unstarted = -1,
-  Ended,
-  Playing,
-  Paused,
-  Buffering,
-  VideoCued = 5,
 }

@@ -1,4 +1,11 @@
+import { updateSongId } from "@/services/firestore/player";
 import { VideoMetadata } from "@/services/youtube";
+import {
+  YTPlaybackStatus,
+  pause,
+  play,
+  usePlayerStore,
+} from "@/stores/player-store";
 import useQueueStore from "@/stores/queue-store";
 import useSessionStore from "@/stores/session-store";
 import {
@@ -11,13 +18,10 @@ import clsx from "clsx";
 import { useEffect } from "react";
 
 const Controls = () => {
-  const session = useSessionStore((s) => s.session);
-
   //TODO: only to make build success
   const queue = useQueueStore((s) => s.queue);
   const video = queue[0] ?? {};
 
-  useEffect(() => {}, []);
 
   if (!video)
     return (
@@ -57,21 +61,21 @@ const Controls = () => {
 };
 
 const PlayPauseButton = () => {
-  // const isPlaying = usePlayerStore((s) => s.isPlaying);
+  const playingStatus = usePlayerStore((s) => s.playingStatus);
   // const playerAction = usePlayerStore((s) => s.action);
 
-  // if (isPlaying) {
-  //   return <PauseIcon onClick={() => null} className="h-8" />;
-  // }
+  if ([YTPlaybackStatus.Buffering, YTPlaybackStatus.Playing].includes(playingStatus)) {
+    return <PauseIcon onClick={pause} className="h-8 cursor-pointer" />;
+  }
 
-  return <PlayIcon onClick={() => null} className="h-8" />;
+  return <PlayIcon onClick={play} className="h-8 cursor-pointer" />;
 };
 
 const PrevButton = () => {
   // const isFirstSong = useSessionStore((s) => s.isFirstSong);
   // const playerAction = usePlayerStore((s) => s.action);
   // const cn = clsx(["h-6", isFirstSong() && "opacity-50"]);
-  const cn = clsx(["h-6", false && "opacity-50"]);
+  const cn = clsx(["h-6", false && "opacity-50"], "cursor-pointer");
 
   return <BackwardIcon className={cn} onClick={() => null} />;
 };
@@ -80,7 +84,7 @@ const NextButton = () => {
   // const isLastSong = useSessionStore((s) => s.isLastSong);
   // const playerAction = usePlayerStore((s) => s.action);
   // const cn = clsx(["h-6", isLastSong() && "opacity-50"]);
-  const cn = clsx(["h-6", false && "opacity-50"]);
+  const cn = clsx(["h-6", false && "opacity-50"], "cursor-pointer");
 
   return <ForwardIcon className={cn} onClick={() => null} />;
 };

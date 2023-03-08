@@ -18,7 +18,13 @@ export const usernameSchema = yup
 
 export const joinSessionSchema = yup
   .object({
-    sessionId: yup.string().matches(/^[0-9]+$/, "only numbers are allowed"),
+    sessionId: yup
+      .string()
+      .trim()
+      .matches(
+        /^[a-zA-Z\d]+$/,
+        "alphanumeric, space, dash, and underscore only"
+      ),
   })
   .required();
 

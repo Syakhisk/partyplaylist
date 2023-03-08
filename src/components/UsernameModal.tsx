@@ -7,24 +7,33 @@ import Input from "./Input";
 import { InferType } from "yup";
 import { getHash } from "@/lib/hash";
 import { useNavigate } from "react-router-dom";
-import { createSession } from "@/services/firestore/session";
+import { addParticipant, createSession } from "@/services/firestore/session";
 
 type Props = {
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
+  sessionId?: string
 };
 
-const UsernameModal = ({ isOpen, setIsOpen }: Props) => {
+const UsernameModal = ({ isOpen, setIsOpen, sessionId }: Props) => {
   const navigate = useNavigate()
   const handleSubmit = async (data: InferType<typeof usernameSchema>) => {
-    const sessionId = await getHash()
-    await createSession(sessionId, data.username)
-    setSession({
-      id: sessionId
-    }) 
+    if (typeof sessionId === "undefined") {
+      const newSessionId = await getHash()
+      await createSession(newSessionId, data.username)
+      setSession({
+        id: newSessionId,
+        host: data.username
+      }) 
+      login(data.username);
+      setIsOpen(false);
+      navigate(`/listen/${newSessionId}`)
+      return
+    } 
     login(data.username);
+    await addParticipant(sessionId, data.username);
     setIsOpen(false);
-    navigate(`/listen/${sessionId}`)
+    
   };
 
   return (
@@ -36,7 +45,7 @@ const UsernameModal = ({ isOpen, setIsOpen }: Props) => {
             <Input
               id="username"
               name="username"
-              label="Please enter your name to join the session"
+              label={`Please enter your name to ${sessionId ? "join" : "create"} the session`}
             />
 
             <button className="bg-red-500 p-2 rounded-sm text-red-100 mt-4">
