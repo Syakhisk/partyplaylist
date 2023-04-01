@@ -4,7 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "turbo run build",
+    "clean": "turbo run clean",
+    "dev": "turbo run dev --no-cache  --continue",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "lint": "turbo run lint",
+    "test": "turbo run test"
   },
   "repository": {
     "type": "git",
@@ -16,5 +21,9 @@
   "bugs": {
     "url": "https://github.com/Syakhisk/partyplaylist/issues"
   },
-  "homepage": "https://github.com/Syakhisk/partyplaylist#readme"
+  "homepage": "https://github.com/Syakhisk/partyplaylist#readme",
+  "packageManager": "pnpm@8.1.0",
+  "devDependencies": {
+    "turbo": "^1.8.8"
+  }
 }
