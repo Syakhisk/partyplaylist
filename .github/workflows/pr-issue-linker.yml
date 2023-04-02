@@ -1,0 +1,44 @@
+name: "Link PR to Issue"
+on: 
+  pull_request:
+    types: [opened, edited, reopened]
+
+jobs:
+   welcome:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v6
+        with:
+          script: |
+            const pr_title = context.payload.pull_request.title
+            const branch = context.payload.pull_request.head.ref
+            let issue_number = null
+
+            const regex = /^PLAY-(\d+):/g
+
+            const found = regex.exec(branch) || regex.exec(pr_title)
+            if(!found) {
+              console.log("No match found on title or branch")
+              return
+            }
+
+            issue_number = found[1]
+            if(!issue_number) {
+              console.log("No issue number found")
+              console.log({ pr_title, branch })
+              return
+            }
+
+            console.log(`Match found on title or branch: ${issue_number}`)
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `
+              This pull request closes #${issue_number} 
+
+              Please unlink the issue from the pull request if this is a mistake.
+              `
+            })
+
