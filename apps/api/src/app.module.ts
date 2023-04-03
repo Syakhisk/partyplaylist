@@ -1,10 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserModule } from 'src/users/users.module';
-import { FileModule } from 'src/files/file.module';
-import { SecurityModule } from 'src/security/security.module';
-import { User } from 'src/users/entities/user.entity';
-import { FileEntity } from 'src/files/entities/files.entity';
+import { AuthorizationModule } from 'src/authorization/authorization.module';
 
 @Module({
   imports: [
@@ -17,11 +13,9 @@ import { FileEntity } from 'src/files/entities/files.entity';
       ssl: false,
       database: process.env.PG_DB,
       synchronize: process.env.ENV === 'dev' ? true : false,
-      entities: [User, FileEntity],
+      entities: [],
     }),
-    SecurityModule,
-    FileModule,
-    UserModule,
+    AuthorizationModule,
   ],
 })
 export class AppModule {}
