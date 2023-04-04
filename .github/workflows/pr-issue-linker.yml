@@ -1,0 +1,30 @@
+name: "Link PR to Issue"
+on: 
+  pull_request:
+    types: [opened]
+
+jobs:
+  pr-issue-linker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Link PR to Issue
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # If branch is PLAY-xxx
+          # then issue number is xxx
+          script: |
+            const branch_name = context.payload.pull_request.head.ref
+            const format = /PLAY-(\d+)/
+            const issue_number = branch_name.match(format)[1]
+            if (!issue_number && issue_number.length < 1) return
+            const pr_number = context.payload.pull_request.number
+            const body = `This PR is linked to issue #${issue_number}`
+            github.issues.createComment({
+              issue_number: pr_number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            })
+      
+      
