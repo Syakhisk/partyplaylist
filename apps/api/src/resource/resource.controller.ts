@@ -10,16 +10,44 @@ import { ApiTags } from '@nestjs/swagger';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import ytdl from 'ytdl-core';
 
-@ApiTags('users')
+@ApiTags('resources')
 // @ApiBearerAuth()
 @Controller({
-  path: 'stream',
+  path: 'resources',
   version: '1',
 })
-export class StreamController {
+export class ResourceController {
   constructor() {}
 
   @Get(':id')
+  async getStreamInfo(@Param('id') id: string): Promise<unknown> {
+    const info = await ytdl
+      .getInfo(`https://www.youtube.com/watch?v=${id}`)
+      .catch((e) => {
+        console.log(e);
+        return null;
+      });
+
+    if (!info) return;
+
+    // Extract relevant video info
+    const videoInfo = {
+      title: info.videoDetails.title,
+      channel: info.videoDetails.author.name,
+      url: info.videoDetails.video_url,
+      thumbnail: info.videoDetails.thumbnails[0].url,
+      formats: info.formats,
+    };
+
+    // Return video info as JSON
+    return {
+      data: {
+        ...videoInfo,
+      },
+    };
+  }
+
+  @Get(':id/stream')
   async getStream(
     @Param('id') id: string,
     @Req() req: FastifyRequest,
@@ -27,7 +55,13 @@ export class StreamController {
   ): Promise<StreamableFile> {
     const headers = req.headers;
     const videoUrl = `https://www.youtube.com/watch?v=${id}`;
-    const info = await ytdl.getInfo(videoUrl);
+
+    const info = await ytdl.getInfo(videoUrl).catch((e) => {
+      console.error(e);
+      return null;
+    });
+
+    if (!info) return null;
 
     // Find the best available audio-only format with an mp4 container
     const audioFormats = ytdl.filterFormats(info.formats, 'audioonly');
@@ -47,9 +81,10 @@ export class StreamController {
 
     // Create a readable stream for the requested byte range
     const audioStream = ytdl(videoUrl, {
-      quality: 'highestaudio',
+      quality: 'lowestaudio',
       range: { start, end },
     });
+    // .on('data', (chunk) => {});
 
     // Send the appropriate headers for a partial content response
     reply.raw.writeHead(206, {
@@ -61,32 +96,5 @@ export class StreamController {
 
     // Pipe the audio stream to the response
     return new StreamableFile(audioStream);
-  }
-
-  @Get(':id/info')
-  async getStreamInfo(@Param('id') id: string): Promise<unknown> {
-    const info = await ytdl
-      .getInfo(`https://www.youtube.com/watch?v=${id}`)
-      .catch((e) => {
-        console.log(e);
-        return null;
-      });
-
-    if (!info) return;
-
-    // Extract relevant video info
-    const videoInfo = {
-      title: info.videoDetails.title,
-      channel: info.videoDetails.author.name,
-      url: info.videoDetails.video_url,
-      thumbnail: info.videoDetails.thumbnails[0].url,
-    };
-
-    // Return video info as JSON
-    return {
-      data: {
-        ...videoInfo,
-      },
-    };
   }
 }
