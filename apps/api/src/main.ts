@@ -12,9 +12,11 @@ import { AppModule } from './app.module';
 import { VersioningType } from '@nestjs/common';
 
 async function bootstrap() {
+  const fastifyAdapter = new FastifyAdapter();
+
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter(),
+    fastifyAdapter,
   );
   app.enableShutdownHooks();
   app.useGlobalPipes(new ZodValidationPipe());
@@ -22,7 +24,7 @@ async function bootstrap() {
   app.enableVersioning({ type: VersioningType.URI });
   const config = new DocumentBuilder()
     .setTitle('PartyPlaylist API')
-    .setDescription('lets make offline partyPlaylist ont he fly!')
+    .setDescription('lets make offline partyPlaylist on the fly!')
     .setVersion('1.0')
     .addTag('users')
     .build();
