@@ -1,0 +1,35 @@
+name: "Create branch command to issue comment"
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  comment-run:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Setting up environment variables
+      id: branch_name
+      run: |
+        BRANCH_PREFIX=PLAY
+        ISSUE_NUMBER=${{ github.event.issue.number }}
+        echo "BRANCH_NAME=$BRANCH_PREFIX-`printf '%03d\n' $ISSUE_NUMBER`" >> $GITHUB_OUTPUT
+
+    - name: Find Comment
+      uses: peter-evans/find-comment@v2
+      id: fc
+      with:
+        issue-number: ${{ github.event.issue.number }}
+        comment-author: 'github-actions[bot]'
+        body-includes: Create this branch locally
+
+    - name: Create or update comment
+      uses: peter-evans/create-or-update-comment@v2
+      with:
+        comment-id: ${{ steps.fc.outputs.comment-id }}
+        issue-number: ${{ github.event.issue.number }}
+        body: |
+          Create this branch locally
+          ```bash
+            git checkout -b ${{ steps.branch_name.outputs.BRANCH_NAME }}
+          ```
+        edit-mode: replace
