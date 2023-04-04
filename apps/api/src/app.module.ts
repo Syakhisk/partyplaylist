@@ -5,6 +5,7 @@ import { FileModule } from 'src/files/file.module';
 import { SecurityModule } from 'src/security/security.module';
 import { User } from 'src/users/entities/user.entity';
 import { FileEntity } from 'src/files/entities/files.entity';
+import { StreamModule } from './stream/stream.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { FileEntity } from 'src/files/entities/files.entity';
     SecurityModule,
     FileModule,
     UserModule,
+    StreamModule,
   ],
 })
 export class AppModule {}
