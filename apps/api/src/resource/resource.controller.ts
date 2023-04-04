@@ -1,13 +1,16 @@
 import {
+  BadRequestException,
   Controller,
   Get,
+  InternalServerErrorException,
+  NotFoundException,
   Param,
   Query,
   Req,
   Res,
   StreamableFile,
 } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import ytdl from 'ytdl-core';
 import ytsr from 'ytsr';
@@ -46,14 +49,18 @@ export class ResourceController {
 
   @Get(':id')
   async getStreamInfo(@Param('id') id: string): Promise<unknown> {
-    const info = await ytdl
-      .getInfo(`https://www.youtube.com/watch?v=${id}`)
-      .catch((e) => {
-        console.log(e);
-        return null;
-      });
+    const videoUrl = `https://www.youtube.com/watch?v=${id}`;
+    const info = await ytdl.getInfo(videoUrl).catch((e) => {
+      if (e.message.includes('Video unavailable')) {
+        throw new NotFoundException(e.message);
+      }
 
-    if (!info) return;
+      if (e.message.includes('does not match expected format')) {
+        throw new BadRequestException(e.message);
+      }
+
+      throw new InternalServerErrorException(e, e.message);
+    });
 
     // Extract relevant video info
     const videoInfo = {
@@ -72,12 +79,7 @@ export class ResourceController {
     };
   }
 
-  // TODO: 404
   @Get(':id/stream')
-  @ApiResponse({
-    status: 206,
-    description: 'The video stream',
-  })
   async getStream(
     @Param('id') id: string,
     @Req() req: FastifyRequest,
@@ -87,11 +89,16 @@ export class ResourceController {
     const videoUrl = `https://www.youtube.com/watch?v=${id}`;
 
     const info = await ytdl.getInfo(videoUrl).catch((e) => {
-      console.error(e);
-      return null;
-    });
+      if (e.message.includes('Video unavailable')) {
+        throw new NotFoundException(e.message);
+      }
 
-    if (!info) return null;
+      if (e.message.includes('does not match expected format')) {
+        throw new BadRequestException(e.message);
+      }
+
+      throw new InternalServerErrorException(e, e.message);
+    });
 
     // Find the best available audio-only format with an mp4 container
     const audioFormats = ytdl.filterFormats(info.formats, 'audioonly');
@@ -112,6 +119,7 @@ export class ResourceController {
     // Create a readable stream for the requested byte range
     const audioStream = ytdl(videoUrl, {
       quality: 'highestaudio',
+      filter: 'audioonly',
       range: { start, end },
     });
     // .on('data', (chunk) => {});
