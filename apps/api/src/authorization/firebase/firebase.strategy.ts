@@ -15,7 +15,7 @@ export class FirebaseStrategy extends PassportStrategy(
     });
     this.firebaseApp = admin.initializeApp({
       credential: admin.credential.cert(
-        './personal-projects-00-firebase-adminsdk-i5dsc-d523d5d958.json',
+        './personal-projects-00-firebase-adminsdk-i5dsc-8bdec7bd76.json',
       ),
     });
   }

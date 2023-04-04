@@ -7,7 +7,7 @@ import databaseConfig, { DatabaseConfig } from 'src/config/database.config';
 import { AuthorizationModule } from 'src/authorization/authorization.module';
 import { UserModule } from 'src/user/user.module';
 import { User } from 'src/user/entities/user.entity';
-import { StreamModule } from './stream/stream.module';
+import { ResourceModule } from './resource/resource.module';
 
 @Module({
   imports: [
@@ -34,7 +34,7 @@ import { StreamModule } from './stream/stream.module';
     }),
     AuthorizationModule,
     UserModule,
-    StreamModule,
+    ResourceModule,
   ],
 })
 export class AppModule {}
