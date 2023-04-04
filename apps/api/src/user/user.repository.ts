@@ -21,6 +21,7 @@ export class UserRepository implements IUserRepository {
       );
   }
   async createUser(user: DeepPartial<User>): Promise<User> {
-    return this.userRepository.save(user);
+    const createUser = this.userRepository.create(user);
+    return this.userRepository.save(createUser);
   }
 }
