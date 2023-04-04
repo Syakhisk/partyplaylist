@@ -26,7 +26,7 @@ async function bootstrap() {
     .setTitle('PartyPlaylist API')
     .setDescription('lets make offline partyPlaylist on the fly!')
     .setVersion('1.0')
-    .addTag('users')
+    .addTag('authorization')
     .build();
   patchNestjsSwagger();
   const document = SwaggerModule.createDocument(app, config);
