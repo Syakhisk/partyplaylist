@@ -1,14 +1,17 @@
 import {
   Controller,
   Get,
+  HttpCode,
   Param,
+  Query,
   Req,
   Res,
   StreamableFile,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import ytdl from 'ytdl-core';
+import ytsr from 'ytsr';
 
 @ApiTags('resources')
 // @ApiBearerAuth()
@@ -18,6 +21,31 @@ import ytdl from 'ytdl-core';
 })
 export class ResourceController {
   constructor() {}
+
+  @Get('/search')
+  async search(@Query('q') q: string): Promise<unknown> {
+    const filters = await ytsr.getFilters(q);
+    const filter = filters.get('Type').get('Video');
+
+    const searchResults = await ytsr(filter.url, { limit: 10 });
+    const videoResults = searchResults.items.filter(
+      (item) => item.type === 'video',
+    );
+
+    return {
+      data: videoResults.map((item) => {
+        const _item = item as ytsr.Video;
+
+        return {
+          id: _item.id,
+          title: _item.title,
+          channel: _item.author.name,
+          url: _item.url,
+          thumbnail: _item.bestThumbnail.url,
+        };
+      }),
+    };
+  }
 
   @Get(':id')
   async getStreamInfo(@Param('id') id: string): Promise<unknown> {
@@ -47,7 +75,12 @@ export class ResourceController {
     };
   }
 
+  // TODO: 404
   @Get(':id/stream')
+  @ApiResponse({
+    status: 206,
+    description: 'The video stream',
+  })
   async getStream(
     @Param('id') id: string,
     @Req() req: FastifyRequest,
@@ -81,7 +114,7 @@ export class ResourceController {
 
     // Create a readable stream for the requested byte range
     const audioStream = ytdl(videoUrl, {
-      quality: 'lowestaudio',
+      quality: 'highestaudio',
       range: { start, end },
     });
     // .on('data', (chunk) => {});

@@ -79,6 +79,9 @@ importers:
       ytdl-core:
         specifier: ^4.11.3
         version: 4.11.3
+      ytsr:
+        specifier: ^3.8.1
+        version: 3.8.1
       zod:
         specifier: ^3.21.4
         version: 3.21.4
@@ -8257,6 +8260,13 @@ packages:
       m3u8stream: 0.8.6
       miniget: 4.2.2
       sax: 1.2.4
+    dev: false
+
+  /ytsr@3.8.1:
+    resolution: {integrity: sha512-YEMFtkDIcMGOCF1/1obV1KO+w6lgDE3w2mpaygtRnaUJ0Yig8MlyfkjY8bCbkZqYH+CeGQR7ceEdI0L5Ax+jtQ==}
+    engines: {node: '>=8'}
+    dependencies:
+      miniget: 4.2.2
     dev: false
 
   /zod@3.21.4:
