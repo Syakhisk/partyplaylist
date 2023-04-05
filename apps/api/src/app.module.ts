@@ -7,7 +7,10 @@ import databaseConfig, { DatabaseConfig } from 'src/config/database.config';
 import { AuthorizationModule } from 'src/authorization/authorization.module';
 import { UserModule } from 'src/user/user.module';
 import { User } from 'src/user/entities/user.entity';
-import { StreamModule } from './stream/stream.module';
+import { ResourceModule } from './resource/resource.module';
+import { Session } from 'src/session/entities/session.entity';
+import { Participant } from 'src/participant/entities/participant.entity';
+import { Song } from 'src/song/entities/song.entity';
 
 @Module({
   imports: [
@@ -27,14 +30,14 @@ import { StreamModule } from './stream/stream.module';
           password: db.password,
           database: db.dbName,
           synchronize: app.env === 'dev' ? true : false,
-          entities: [User],
+          entities: [User, Session, Participant, Song],
         };
       },
       inject: [ConfigService],
     }),
     AuthorizationModule,
     UserModule,
-    StreamModule,
+    ResourceModule,
   ],
 })
 export class AppModule {}
