@@ -14,6 +14,7 @@ import { Song } from 'src/song/entities/song.entity';
 import { SessionModule } from 'src/session/session.module';
 import { APP_PIPE } from '@nestjs/core';
 import { ZodValidationPipe } from '@anatine/zod-nestjs';
+import { GatewayModule } from 'src/gateway/gateway.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { ZodValidationPipe } from '@anatine/zod-nestjs';
     UserModule,
     ResourceModule,
     SessionModule,
+    GatewayModule,
   ],
   providers: [
     {

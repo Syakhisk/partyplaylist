@@ -10,6 +10,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { patchNestjsSwagger } from '@anatine/zod-nestjs';
 import { AppModule } from './app.module';
 import { VersioningType } from '@nestjs/common';
+import { WebsocketAdapter } from 'src/gateway/gateway.adapter';
 
 async function bootstrap() {
   const fastifyAdapter = new FastifyAdapter();
@@ -18,6 +19,7 @@ async function bootstrap() {
     AppModule,
     fastifyAdapter,
   );
+  app.useWebSocketAdapter(new WebsocketAdapter(app));
   app.enableShutdownHooks();
   app.setGlobalPrefix('api');
   app.enableVersioning({ type: VersioningType.URI });
