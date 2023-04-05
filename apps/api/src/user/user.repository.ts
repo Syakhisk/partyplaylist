@@ -36,4 +36,17 @@ export class UserRepository implements IUserRepository {
         HttpStatus.UNPROCESSABLE_ENTITY,
       );
   }
+
+  async checkUserExist(uid: string): Promise<void> {
+    const user = await this.userRepository.findOne({
+      where: { uid },
+    });
+    if (!user)
+      throw new HttpException(
+        {
+          message: 'user not found',
+        },
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+  }
 }
