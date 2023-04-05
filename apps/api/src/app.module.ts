@@ -11,6 +11,9 @@ import { ResourceModule } from './resource/resource.module';
 import { Session } from 'src/session/entities/session.entity';
 import { Participant } from 'src/participant/entities/participant.entity';
 import { Song } from 'src/song/entities/song.entity';
+import { SessionModule } from 'src/session/session.module';
+import { APP_PIPE } from '@nestjs/core';
+import { ZodValidationPipe } from '@anatine/zod-nestjs';
 
 @Module({
   imports: [
@@ -38,6 +41,13 @@ import { Song } from 'src/song/entities/song.entity';
     AuthorizationModule,
     UserModule,
     ResourceModule,
+    SessionModule,
+  ],
+  providers: [
+    {
+      provide: APP_PIPE,
+      useClass: ZodValidationPipe,
+    },
   ],
 })
 export class AppModule {}

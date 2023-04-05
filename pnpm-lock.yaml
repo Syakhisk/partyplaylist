@@ -55,6 +55,9 @@ importers:
       firebase-admin:
         specifier: ^11.5.0
         version: 11.5.0
+      nanoid:
+        specifier: ^3.3.6
+        version: 3.3.6
       openapi3-ts:
         specifier: ^3.2.0
         version: 3.2.0
@@ -5864,7 +5867,6 @@ packages:
     resolution: {integrity: sha512-BGcqMMJuToF7i1rt+2PWSNVnWIkGCU78jBG3RxO/bZlnZPK2Cmi2QaffxGO/2RvWi9sL+FAiRiXMgsyxQ1DIDA==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
-    dev: true
 
   /natural-compare-lite@1.4.0:
     resolution: {integrity: sha512-Tj+HTDSJJKaZnfiuw+iaF9skdPpTo2GtEly5JHnWV/hfv2Qj/9RKsGISQtLh2ox3l5EAGw487hnBee0sIJ6v2g==}

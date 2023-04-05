@@ -1,10 +1,11 @@
 import {
+  Body,
   Controller,
   HttpCode,
   HttpStatus,
   Inject,
   Post,
-  Req,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -14,8 +15,8 @@ import {
 } from '@nestjs/swagger';
 import { CreatedUserDTOResponse } from 'src/user/dtos/createdUser.dto';
 import { UserService } from 'src/user/user.service';
-import { FastifyRequest } from 'fastify';
 import { CreateUserDTO } from 'src/user/dtos/createUser.dto';
+import { FirebaseAuthGuard } from 'src/authorization/firebase/firebase.guard';
 @ApiTags('users')
 @ApiBearerAuth()
 @Controller({
@@ -33,10 +34,11 @@ export class UserController {
     type: CreatedUserDTOResponse,
     status: HttpStatus.CREATED,
   })
+  @UseGuards(FirebaseAuthGuard)
   async postUserHandler(
-    @Req() request: FastifyRequest<{ Body: CreateUserDTO }>,
+    @Body() body: CreateUserDTO,
   ): Promise<CreatedUserDTOResponse> {
-    const createdUser = await this.userService.create(request.body);
+    const createdUser = await this.userService.create(body);
     return {
       data: {
         uid: createdUser.uid,

@@ -4,6 +4,7 @@ import { User } from 'src/user/entities/user.entity';
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   OneToMany,
   OneToOne,
@@ -19,6 +20,7 @@ export class Session {
   @JoinColumn()
   host: User;
 
+  @Index()
   @Column({ unique: true, nullable: false })
   code: string;
 

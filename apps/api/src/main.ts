@@ -7,7 +7,7 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { ZodValidationPipe, patchNestjsSwagger } from '@anatine/zod-nestjs';
+import { patchNestjsSwagger } from '@anatine/zod-nestjs';
 import { AppModule } from './app.module';
 import { VersioningType } from '@nestjs/common';
 
@@ -19,14 +19,13 @@ async function bootstrap() {
     fastifyAdapter,
   );
   app.enableShutdownHooks();
-  app.useGlobalPipes(new ZodValidationPipe());
   app.setGlobalPrefix('api');
   app.enableVersioning({ type: VersioningType.URI });
   const config = new DocumentBuilder()
     .setTitle('PartyPlaylist API')
+    .addBearerAuth()
     .setDescription('lets make offline partyPlaylist on the fly!')
     .setVersion('1.0')
-    .addTag('authorization')
     .build();
   patchNestjsSwagger();
   const document = SwaggerModule.createDocument(app, config);

@@ -24,4 +24,17 @@ export class UserRepository implements IUserRepository {
     const createUser = this.userRepository.create(user);
     return this.userRepository.save(createUser);
   }
+
+  async checkUserExist(uid: string): Promise<void> {
+    const user = await this.userRepository.findOne({
+      where: { uid },
+    });
+    if (!user)
+      throw new HttpException(
+        {
+          message: 'user not found',
+        },
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+  }
 }
