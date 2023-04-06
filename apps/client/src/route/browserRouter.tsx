@@ -13,7 +13,6 @@ const Wrapper = ({ children, isPublic }: PropsWithChildren<{ isPublic?: boolean 
 
   return (
     <div>
-      <div>{isPublic?.toString()}</div>
       <div>{children}</div>
     </div>
   )

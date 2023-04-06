@@ -21,6 +21,7 @@ async function bootstrap() {
   );
   app.useWebSocketAdapter(new WebsocketAdapter(app));
   app.enableShutdownHooks();
+  app.enableCors();
   app.setGlobalPrefix('api');
   app.enableVersioning({ type: VersioningType.URI });
   const config = new DocumentBuilder()
