@@ -4,6 +4,7 @@ export type SessionData = {
   name: string;
 };
 export interface ISessionRepository {
+  checkSessionAvaibility(userUID: string): Promise<void>;
   addNewSession(sessionData: SessionData): Promise<string>;
 }
 

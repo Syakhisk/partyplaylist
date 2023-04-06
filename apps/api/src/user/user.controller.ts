@@ -36,9 +36,9 @@ export class UserController {
   })
   @UseGuards(FirebaseAuthGuard)
   async postUserHandler(
-    @Body() body: CreateUserDTO,
+    @Body() payload: CreateUserDTO,
   ): Promise<CreatedUserDTOResponse> {
-    const createdUser = await this.userService.create(body);
+    const createdUser = await this.userService.create(payload);
     return {
       data: {
         uid: createdUser.uid,

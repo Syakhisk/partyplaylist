@@ -11,7 +11,8 @@ export class SessionService implements ISessionService {
     @Inject(SessionRepository) private readonly sessionRepo: SessionRepository,
   ) {}
   async addNewSession(payload: SessionData): Promise<CreatedSessionDTO> {
-    await this.userRepo.checkUserExist(payload.name);
+    await this.userRepo.checkUserExist(payload.userId);
+    await this.sessionRepo.checkSessionAvaibility(payload.userId);
     const createdSessionCode = await this.sessionRepo.addNewSession(payload);
     return {
       code: createdSessionCode,

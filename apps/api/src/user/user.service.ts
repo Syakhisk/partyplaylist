@@ -12,6 +12,6 @@ export class UserService implements IUserService {
 
   async create(createUser: CreateUserDTO): Promise<CreatedUserDTO> {
     await this.userRepo.checkUserAvaibility(createUser.uid);
-    return this.userRepo.createUser(createUser);
+    return this.userRepo.createUser(createUser.uid);
   }
 }

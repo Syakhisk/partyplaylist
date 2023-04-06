@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { customAlphabet } from 'nanoid';
 import { Session } from 'src/session/entities/session.entity';
@@ -11,6 +11,16 @@ export class SessionRepository implements ISessionRepository {
     @InjectRepository(Session)
     private readonly sessionRepository: Repository<Session>,
   ) {}
+  async checkSessionAvaibility(userUID: string): Promise<void> {
+    const session = await this.sessionRepository.findOne({
+      where: { host: { uid: userUID } },
+    });
+    if (session)
+      throw new HttpException(
+        { message: 'user already have a host, must end it first' },
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+  }
   async addNewSession(sessionData: SessionData): Promise<string> {
     const newCode = SessionRepository.generateCode();
     const session = this.sessionRepository.create({
