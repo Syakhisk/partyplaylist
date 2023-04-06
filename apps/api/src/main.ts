@@ -19,6 +19,7 @@ async function bootstrap() {
     fastifyAdapter,
   );
   app.enableShutdownHooks();
+  app.enableCors();
   app.useGlobalPipes(new ZodValidationPipe());
   app.setGlobalPrefix('api');
   app.enableVersioning({ type: VersioningType.URI });
