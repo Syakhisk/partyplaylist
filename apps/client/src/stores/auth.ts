@@ -5,11 +5,12 @@ export const useUserStore = create<userStore>(() => ({
 }))
 
 export interface userStore {
-  user: Player | null
+  user: User | null
 }
 
-type Player = {
-  playVideo: () => void
-  stopVideo: () => void
-  pauseVideo: () => void
+type User = {
+  uid: string,
+  email: string,
+  displayName: string,
+  photoURL: string,
 }
