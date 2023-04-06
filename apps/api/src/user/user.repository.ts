@@ -17,7 +17,7 @@ export class UserRepository implements IUserRepository {
     if (existingUser)
       throw new HttpException(
         { message: 'User already exists' },
-        HttpStatus.CONFLICT,
+        HttpStatus.ACCEPTED,
       );
   }
   async createUser(uid: string): Promise<User> {
