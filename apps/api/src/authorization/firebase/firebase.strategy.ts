@@ -14,9 +14,7 @@ export class FirebaseStrategy extends PassportStrategy(
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
     });
     this.firebaseApp = admin.initializeApp({
-      credential: admin.credential.cert(
-        './personal-projects-00-firebase-adminsdk-.json',
-      ),
+      credential: admin.credential.cert('./service-account.json'),
     });
   }
 

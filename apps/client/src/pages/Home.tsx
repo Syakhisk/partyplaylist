@@ -4,7 +4,7 @@ import { handleLogout } from "./Login/handler"
 
 const Home = () => {
   return (
-    <div className="flex">
+    <div className="">
       <LogoutButton />
       <Button variant="primary" disabled>
         Hello
@@ -31,7 +31,7 @@ const Home = () => {
 
 const LogoutButton = () => {
   return (
-    <Button outlined className="my-8" onClick={handleLogout}>
+    <Button outlined onClick={handleLogout}>
       <div className="inline-flex">Logout</div>
     </Button>
   )
