@@ -15,9 +15,7 @@ export class GatewayGuard extends AuthGuard('firebase-auth') {
     if (!baseGuardResult) return false;
 
     const { user } = context.switchToHttp().getRequest();
-    const sid = this.sessionManager.getConnectionUser(user);
-    if (!sid) return false;
-
-    return true;
+    const socket = this.sessionManager.getUserSocket(user.uid);
+    return socket ? true : false;
   }
 }

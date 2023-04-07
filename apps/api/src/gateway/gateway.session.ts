@@ -1,31 +1,29 @@
 import { Injectable } from '@nestjs/common';
-import { auth } from 'firebase-admin';
+import { AuthenticatedSocket } from 'src/gateway/gateway.type';
 
 @Injectable()
 export class GatewaySessionManager {
-  private readonly sessions: Map<string, auth.DecodedIdToken> = new Map();
-  private readonly reverseSession: Map<auth.DecodedIdToken, string> = new Map();
+  private readonly sessions: Map<string, AuthenticatedSocket> = new Map();
 
-  getUserSocket(sid: string) {
-    return this.sessions.get(sid);
+  getUserSocket(uid: string) {
+    return this.sessions.get(uid);
   }
-  getConnectionUser(user: auth.DecodedIdToken) {
-    return this.reverseSession.get(user);
+  setUserSocket(uid: string, socket: AuthenticatedSocket) {
+    this.sessions.set(uid, socket);
   }
-
-  setUserSocket(sid: string, user: auth.DecodedIdToken) {
-    this.sessions.set(sid, user);
-    this.reverseSession.set(user, sid);
+  removeUserSocket(uid: string) {
+    this.sessions.delete(uid);
   }
-  removeUserSocket(sid: string) {
-    const user = this.sessions.get(sid);
-    this.sessions.delete(sid);
-    this.reverseSession.set(user, sid);
+  joinRoom(uid: string, roomName: string) {
+    const socket = this.getUserSocket(uid);
+    if (!socket) return;
+    socket.join(roomName);
+    this.setUserSocket(uid, socket);
   }
-  getSockets(): Map<string, auth.DecodedIdToken> {
-    return this.sessions;
-  }
-  getConnection(): Map<auth.DecodedIdToken, string> {
-    return this.reverseSession;
+  leaveRoom(uid: string, roomName: string) {
+    const socket = this.getUserSocket(uid);
+    if (!socket) return;
+    socket.leave(roomName);
+    this.setUserSocket(uid, socket);
   }
 }

@@ -15,9 +15,11 @@ import { SessionModule } from 'src/session/session.module';
 import { APP_PIPE } from '@nestjs/core';
 import { ZodValidationPipe } from '@anatine/zod-nestjs';
 import { GatewayModule } from 'src/gateway/gateway.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
+    EventEmitterModule.forRoot(),
     ConfigModule.forRoot({
       load: [appConfig, databaseConfig],
     }),

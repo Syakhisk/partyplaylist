@@ -12,9 +12,7 @@ export class SessionRepository implements ISessionRepository {
     private readonly sessionRepository: Repository<Session>,
   ) {}
   async checkSessionAvaibility(userUID: string): Promise<void> {
-    const session = await this.sessionRepository.findOne({
-      where: { host: { uid: userUID } },
-    });
+    const session = await this.findSessionByHost(userUID);
     if (session)
       throw new HttpException(
         { message: 'user already have a host, must end it first' },
@@ -34,6 +32,11 @@ export class SessionRepository implements ISessionRepository {
     return createdSession.code;
   }
 
+  async findSessionByHost(uid: string): Promise<Session> {
+    return this.sessionRepository.findOne({
+      where: { host: { uid } },
+    });
+  }
   private static generateCode(): Promise<string> {
     const customValue = '1234567890qwertyuiopasdfghjklzxcvbnm';
     const customNanoFunc = customAlphabet(customValue, 6);

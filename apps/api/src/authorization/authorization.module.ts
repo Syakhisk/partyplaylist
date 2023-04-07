@@ -4,7 +4,7 @@ import { FirebaseAuthGuard } from 'src/authorization/firebase/firebase.guard';
 import { FirebaseStrategy } from 'src/authorization/firebase/firebase.strategy';
 
 @Module({
-  providers: [FirebaseAuthGuard, FirebaseStrategy, FirebaseAdmin],
+  providers: [FirebaseAdmin, FirebaseStrategy, FirebaseAuthGuard],
   exports: [FirebaseAuthGuard, FirebaseAdmin],
 })
 export class AuthorizationModule {}

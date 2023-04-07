@@ -1,5 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-require('dotenv').config();
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import {
@@ -11,10 +9,11 @@ import { patchNestjsSwagger } from '@anatine/zod-nestjs';
 import { AppModule } from './app.module';
 import { VersioningType } from '@nestjs/common';
 import { WebsocketAdapter } from 'src/gateway/gateway.adapter';
+import { AppConfig } from 'src/config/app.config';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const fastifyAdapter = new FastifyAdapter();
-
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     fastifyAdapter,
@@ -34,5 +33,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
   await app.listen(process.env.PORT);
+  const appConfig = app.get(ConfigService).get<AppConfig>('app');
+  console.log(`listening on PORT ${appConfig.host}:${appConfig.port}`);
 }
 bootstrap();

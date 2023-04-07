@@ -10,6 +10,6 @@ export type AppConfig = {
 export default registerAs<AppConfig>('app', () => ({
   cookieSecret: process.env.COOKIE_SECRET,
   host: process.env.HOST ?? '0.0.0.0',
-  port: +process.env.port,
+  port: +process.env.PORT,
   env: process.env.ENV ?? 'production',
 }));

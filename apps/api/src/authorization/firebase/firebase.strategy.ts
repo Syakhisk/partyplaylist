@@ -1,7 +1,7 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, ExtractJwt } from 'passport-firebase-jwt';
-import * as admin from 'firebase-admin';
+import { auth } from 'firebase-admin';
 import { FirebaseAdmin } from 'src/authorization/firebase/firebase';
 
 @Injectable()
@@ -15,8 +15,9 @@ export class FirebaseStrategy extends PassportStrategy(
     });
   }
 
-  async validate(token: string): Promise<admin.auth.DecodedIdToken> {
-    const firebaseUser = await this.firebase.app
+  async validate(token: string): Promise<auth.DecodedIdToken> {
+    const firebaseUser = await this.firebase
+      .app()
       .auth()
       .verifyIdToken(token, true)
       .catch((e: Error) => {
