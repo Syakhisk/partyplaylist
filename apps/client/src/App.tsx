@@ -6,6 +6,10 @@ import { browserRouter } from "@/router/browserRouter"
 import { login } from "@/stores/auth"
 import { app } from "@/lib/firestore"
 
+/**
+ * Global listener, such as auth,
+ * should be placed in this component.
+ */
 const App = () => {
   useEffect(() => {
     const auth = getAuth(app)

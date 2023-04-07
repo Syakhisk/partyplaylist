@@ -3,8 +3,14 @@ import NotFound from "@/components/NotFound"
 import Public from "@/pages/Public"
 import Login from "@/pages/Login"
 import Private from "@/pages/Private"
+import { RouteObject } from "react-router-dom"
 
-const routes = [
+type AugmentedRouteObject = RouteObject & {
+  isPublic?: boolean
+  component: () => JSX.Element
+}
+
+const routes: AugmentedRouteObject[] = [
   {
     path: "/",
     component: Home,
