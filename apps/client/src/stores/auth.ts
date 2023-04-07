@@ -24,6 +24,7 @@ export const login = async (user: User | null) => {
   useUserStore.setState({ authLoading: false })
 }
 
+// TODO: remove this, use useUserStore.getState().token instead
 export const getToken = () => {
   return useUserStore.getState().token
 }
