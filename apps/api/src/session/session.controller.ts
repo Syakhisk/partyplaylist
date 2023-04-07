@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { auth } from 'firebase-admin';
-import { FirebaseAuthGuard } from 'src/authorization/firebase/firebase.guard';
+import { GatewayGuard } from 'src/gateway/gateway.guard';
 import { CreateSessionDTO } from 'src/session/dtos/createSession.dto';
 import { CreatedSessionDTOResponse } from 'src/session/dtos/createdSession.dto';
 import { SessionService } from 'src/session/session.service';
@@ -34,7 +34,7 @@ export class SessionController {
     type: CreatedSessionDTOResponse,
     status: HttpStatus.CREATED,
   })
-  @UseGuards(FirebaseAuthGuard)
+  @UseGuards(GatewayGuard)
   async postSessionHandler(
     @Req()
     request: {

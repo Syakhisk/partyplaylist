@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { GatewayModule } from 'src/gateway/gateway.module';
 import { Session } from 'src/session/entities/session.entity';
 import { SessionController } from 'src/session/session.controller';
 import { SessionRepository } from 'src/session/session.repository';
@@ -9,7 +10,11 @@ import { UserModule } from 'src/user/user.module';
 import { UserRepository } from 'src/user/user.repository';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Session, User]), UserModule],
+  imports: [
+    TypeOrmModule.forFeature([Session, User]),
+    UserModule,
+    GatewayModule,
+  ],
   providers: [UserRepository, SessionRepository, SessionService],
   controllers: [SessionController],
 })

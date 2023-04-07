@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { customAlphabet } from 'nanoid';
+import { customAlphabet } from 'nanoid/async';
 import { Session } from 'src/session/entities/session.entity';
 import { ISessionRepository, SessionData } from 'src/session/session.interface';
 import { Repository } from 'typeorm';
@@ -22,7 +22,7 @@ export class SessionRepository implements ISessionRepository {
       );
   }
   async addNewSession(sessionData: SessionData): Promise<string> {
-    const newCode = SessionRepository.generateCode();
+    const newCode = await SessionRepository.generateCode();
     const session = this.sessionRepository.create({
       code: newCode,
       host: {
@@ -34,7 +34,7 @@ export class SessionRepository implements ISessionRepository {
     return createdSession.code;
   }
 
-  private static generateCode(): string {
+  private static generateCode(): Promise<string> {
     const customValue = '1234567890qwertyuiopasdfghjklzxcvbnm';
     const customNanoFunc = customAlphabet(customValue, 6);
     return customNanoFunc();
