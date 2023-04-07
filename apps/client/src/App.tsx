@@ -7,6 +7,10 @@ import { getToken, login } from "@/stores/auth"
 import { app } from "@/lib/firestore"
 import { socket } from "@/constants"
 
+/**
+ * Global listener, such as auth,
+ * should be placed in this component.
+ */
 const App = () => {
   const token = getToken()
   useEffect(() => {

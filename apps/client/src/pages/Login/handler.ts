@@ -6,11 +6,9 @@ export const handleLogin = async () => {
   const auth = getAuth(app)
   const creds = await signInWithPopup(auth, new GoogleAuthProvider())
 
-  const res = await http.post("/users", {
+  await http.post("/users", {
     uid: creds.user.uid,
   })
-
-  console.log(res.data)
 }
 
 export const handleLogout = async () => {

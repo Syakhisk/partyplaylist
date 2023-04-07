@@ -4,6 +4,12 @@ import { PropsWithChildren, useEffect } from "react"
 import { createBrowserRouter, useLocation, useNavigate } from "react-router-dom"
 import routes from "./routes"
 
+/**
+ * Wrapper component for all routes.
+ * This component is used to check if the user is logged in.
+ * If the user visits a private route without being logged in,
+ * they will be redirected to the login page.
+ */
 const Wrapper = ({ children, isPublic }: PropsWithChildren<{ isPublic?: boolean }>) => {
   const navigate = useNavigate()
   const location = useLocation()
