@@ -27,9 +27,10 @@ const Button = ({
   }
 
   const outlinedColors = {
-    primary: "border-red-500 text-red-500 hover:bg-red-500 hover:text-white",
-    secondary: "border-gray-500 text-gray-500 hover:bg-gray-500 hover:text-white",
-    warning: "border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-white",
+    primary: "border-red-500 text-red-500 hover:bg-red-500 hover:text-white outline outline-1",
+    secondary: "border-gray-500 text-gray-500 hover:bg-gray-500 hover:text-white outline outline-1",
+    warning:
+      "border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-white outline outline-1",
   }
 
   const baseClasses = CLSX`
@@ -42,11 +43,11 @@ ease-in-out
 duration-150
 px-2
 p-1
-${disabled && "opacity-50 cursor-not-allowed"}
 `
 
   const buttonClasses = CLSX(
     baseClasses,
+    disabled && "opacity-50 cursor-not-allowed",
     !outlined && colors[variant],
     outlined && outlinedColors[variant],
     hovered && Icon && "opacity-80"
@@ -54,13 +55,13 @@ ${disabled && "opacity-50 cursor-not-allowed"}
 
   return (
     <button
-      className={buttonClasses}
+      {...rest}
+      className={CLSX(buttonClasses, rest.className)}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      {...rest}
     >
       {Icon && iconPosition === "before" && <Icon className="h-5 w-5" />}
-      {children && <div>{children}</div>}
+      {children && children}
       {Icon && iconPosition === "after" && <Icon className="h-5 w-5" />}
     </button>
   )
