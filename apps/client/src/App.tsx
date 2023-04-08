@@ -21,9 +21,12 @@ const App = () => {
   }, [])
 
   useEffect(() => {
-    if (!token) return
-    socket.auth = () => token
-    socket.connect()
+    if (token) {
+      socket.auth = (cb) => {
+        cb({ token })
+      }
+      socket.connect()
+    }
   }, [token])
 
   return (

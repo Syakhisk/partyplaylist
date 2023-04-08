@@ -1,11 +1,18 @@
 import { User } from "firebase/auth"
 import { create } from "zustand"
-
-export const useUserStore = create<userStore>(() => ({
-  user: null,
-  token: null,
-  authLoading: true,
-}))
+import { persist } from "zustand/middleware"
+export const useUserStore = create<userStore>()(
+  persist(
+    (_set) => ({
+      user: null,
+      token: null,
+      authLoading: true,
+    }),
+    {
+      name: "user-store",
+    }
+  )
+)
 
 export const setUser = async (user: User | null) => {
   useUserStore.setState({ user })
