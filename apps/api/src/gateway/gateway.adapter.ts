@@ -1,7 +1,6 @@
 import { INestApplicationContext } from '@nestjs/common';
 import { IoAdapter } from '@nestjs/platform-socket.io';
-import { WsException } from '@nestjs/websockets';
-import { ServerOptions, Socket } from 'socket.io';
+import { Server, ServerOptions } from 'socket.io';
 import { FirebaseAdmin } from 'src/authorization/firebase/firebase';
 import { AuthenticatedSocket } from 'src/gateway/gateway.type';
 import { UserRepository } from 'src/user/user.repository';
@@ -18,9 +17,9 @@ export class WebsocketAdapter extends IoAdapter {
       this.userRepo = userRepo;
     });
   }
-  createIOServer(port: number, options?: ServerOptions): any {
-    const server = super.createIOServer(port, options);
-    server.use(async (socket: Socket, next) => {
+  createIOServer(port: number, options?: ServerOptions): Server {
+    const server = super.createIOServer(port, options) as Server;
+    server.use(async (socket, next) => {
       const token = socket.handshake.auth.token;
       const firebaseUser = await this.firebase
         .app()
@@ -29,7 +28,10 @@ export class WebsocketAdapter extends IoAdapter {
         .catch((e: Error) => {
           next(new Error(e.message));
         });
-      if (!firebaseUser) throw new WsException('unauthorized');
+      if (!firebaseUser) {
+        return next(new Error('unauthorized'));
+      }
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       await this.userRepo.checkUserExist(firebaseUser.uid).catch(() => {
         next(new Error('authorized but not exists, post first'));
       });

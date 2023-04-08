@@ -42,10 +42,10 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
       inject: [ConfigService],
     }),
     AuthorizationModule,
+    GatewayModule,
     UserModule,
     ResourceModule,
     SessionModule,
-    GatewayModule,
   ],
   providers: [
     {

@@ -18,9 +18,9 @@ async function bootstrap() {
     AppModule,
     fastifyAdapter,
   );
+  app.enableCors();
   app.useWebSocketAdapter(new WebsocketAdapter(app));
   app.enableShutdownHooks();
-  app.enableCors();
   app.setGlobalPrefix('api');
   app.enableVersioning({ type: VersioningType.URI });
   const config = new DocumentBuilder()

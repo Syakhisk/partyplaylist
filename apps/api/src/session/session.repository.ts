@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { customAlphabet } from 'nanoid/async';
 import { Session } from 'src/session/entities/session.entity';
 import { ISessionRepository, SessionData } from 'src/session/session.interface';
+import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -11,6 +12,11 @@ export class SessionRepository implements ISessionRepository {
     @InjectRepository(Session)
     private readonly sessionRepository: Repository<Session>,
   ) {}
+
+  async changeToANewHost(oldSession: Session, newHost: User): Promise<void> {
+    oldSession.host = newHost;
+    await this.sessionRepository.save(oldSession);
+  }
   async checkSessionAvaibility(userUID: string): Promise<void> {
     const session = await this.findSessionByHost(userUID);
     if (session)
