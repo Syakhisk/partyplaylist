@@ -1,5 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-require('dotenv').config();
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import {
@@ -7,31 +5,35 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { ZodValidationPipe, patchNestjsSwagger } from '@anatine/zod-nestjs';
+import { patchNestjsSwagger } from '@anatine/zod-nestjs';
 import { AppModule } from './app.module';
 import { VersioningType } from '@nestjs/common';
+import { WebsocketAdapter } from 'src/gateway/gateway.adapter';
+import { AppConfig } from 'src/config/app.config';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const fastifyAdapter = new FastifyAdapter();
-
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     fastifyAdapter,
   );
-  app.enableShutdownHooks();
   app.enableCors();
-  app.useGlobalPipes(new ZodValidationPipe());
+  app.useWebSocketAdapter(new WebsocketAdapter(app));
+  app.enableShutdownHooks();
   app.setGlobalPrefix('api');
   app.enableVersioning({ type: VersioningType.URI });
   const config = new DocumentBuilder()
     .setTitle('PartyPlaylist API')
+    .addBearerAuth()
     .setDescription('lets make offline partyPlaylist on the fly!')
     .setVersion('1.0')
-    .addTag('authorization')
     .build();
   patchNestjsSwagger();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
   await app.listen(process.env.PORT);
+  const appConfig = app.get(ConfigService).get<AppConfig>('app');
+  console.log(`listening on PORT ${appConfig.host}:${appConfig.port}`);
 }
 bootstrap();

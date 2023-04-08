@@ -36,4 +36,4 @@ lerna-debug.log*
 
 # env
 .env
-personal-projects-00-firebase-adminsdk-*.json
+service-account.json

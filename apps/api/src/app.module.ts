@@ -11,9 +11,15 @@ import { ResourceModule } from './resource/resource.module';
 import { Session } from 'src/session/entities/session.entity';
 import { Participant } from 'src/participant/entities/participant.entity';
 import { Song } from 'src/song/entities/song.entity';
+import { SessionModule } from 'src/session/session.module';
+import { APP_PIPE } from '@nestjs/core';
+import { ZodValidationPipe } from '@anatine/zod-nestjs';
+import { GatewayModule } from 'src/gateway/gateway.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
+    EventEmitterModule.forRoot(),
     ConfigModule.forRoot({
       load: [appConfig, databaseConfig],
     }),
@@ -36,8 +42,16 @@ import { Song } from 'src/song/entities/song.entity';
       inject: [ConfigService],
     }),
     AuthorizationModule,
+    GatewayModule,
     UserModule,
     ResourceModule,
+    SessionModule,
+  ],
+  providers: [
+    {
+      provide: APP_PIPE,
+      useClass: ZodValidationPipe,
+    },
   ],
 })
 export class AppModule {}
