@@ -44,10 +44,10 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: npm install
+        run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: npm run build
+        run: pnpm run build
         env:
           # The hostname used to communicate with the PostgreSQL service container
           POSTGRES_HOST: postgres
