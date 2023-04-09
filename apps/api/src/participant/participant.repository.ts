@@ -23,6 +23,11 @@ export class ParticipantRepository implements IParticipantRepository {
     const participant = await this.ParticipantRepository.findOne({
       where: { user: { uid } },
     });
+
+    if (!participant) {
+      return null;
+    }
+
     return participant.session;
   }
   async removeParticipantByUserId(uid: string): Promise<void> {
