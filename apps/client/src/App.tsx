@@ -3,7 +3,7 @@ import { useEffect } from "react"
 import { getAuth, onAuthStateChanged } from "firebase/auth"
 
 import { browserRouter } from "@/router/browserRouter"
-import { getToken, login } from "@/stores/auth"
+import { login, useUserStore } from "@/stores/auth"
 import { app } from "@/lib/firestore"
 import { socket } from "@/constants"
 
@@ -12,7 +12,8 @@ import { socket } from "@/constants"
  * should be placed in this component.
  */
 const App = () => {
-  const token = getToken()
+  const token = useUserStore((s) => s.token)
+
   useEffect(() => {
     const auth = getAuth(app)
     const unsubscribe = onAuthStateChanged(auth, login)
