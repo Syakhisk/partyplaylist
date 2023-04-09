@@ -22,13 +22,13 @@ export class Song {
   thumbnail_url: string;
 
   @Column()
-  video_id: string;
+  song_id: string;
 
   @Column()
-  video_title: string;
+  song_title: string;
 
   @Column()
-  video_url: string;
+  song_url: string;
 
   @Index()
   @Column({ unique: true })

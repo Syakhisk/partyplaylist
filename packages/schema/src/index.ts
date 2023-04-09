@@ -5,6 +5,8 @@ import {
   CreatedUserByFirebase,
   createdUserByFirebase,
 } from "./user/createdUser";
+import { AddSong, addSong } from "./song";
+
 export const user = {
   createByFirebase: createUserByFirebase,
   createdByFirebase: createdUserByFirebase,
@@ -14,6 +16,11 @@ export const session = {
   create: createSession,
   created: createdSession
 }
+
+export const song = {
+  add: addSong,
+}
+
 export { httpResponse };
 export type { HttpResponse } from "./response";
 export declare namespace User {
@@ -23,4 +30,8 @@ export declare namespace User {
 export declare namespace Session {
   export type Create = CreateSession
   export type Created = CreatedSession
+}
+
+export declare namespace Song {
+  export type Add = AddSong
 }
