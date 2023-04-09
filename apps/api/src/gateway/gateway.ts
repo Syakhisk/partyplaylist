@@ -34,6 +34,7 @@ export class MessagingGateway
   server: Server;
 
   handleConnection(client: AuthenticatedSocket) {
+    console.log('connection incoming');
     this.gatewaySession.setUserSocket(client.userId, client);
   }
 
