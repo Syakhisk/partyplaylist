@@ -24,15 +24,16 @@ export class ParticipantService {
   async handleParticipantOffline(
     payload: ServerEventPayload[ServerEvent.UserOffline],
   ) {
-    const socket = this.gatewayManager.getUserSocket(payload.uid);
     const session = await this.participantRepo.findSessionByParticipantUid(
       payload.uid,
     );
+    if (!session) return;
+    await this.participantRepo.removeParticipantByUserId(payload.uid);
 
+    const socket = this.gatewayManager.getUserSocket(payload.uid);
+    if (!socket) return;
     socket.to(`session-${session.code}`).emit(WebsocketEvent.ParticipantLeave, {
       userId: socket.userId,
     } as WebSocketEventPayload[WebsocketEvent.ParticipantLeave]);
-
-    await this.participantRepo.removeParticipantByUserId(payload.uid);
   }
 }

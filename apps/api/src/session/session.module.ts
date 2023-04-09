@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthorizationModule } from 'src/authorization/authorization.module';
 import { GatewayModule } from 'src/gateway/gateway.module';
 import { Participant } from 'src/participant/entities/participant.entity';
 import { ParticipantModule } from 'src/participant/participant.module';
@@ -18,6 +19,7 @@ import { UserRepository } from 'src/user/user.repository';
     UserModule,
     GatewayModule,
     ParticipantModule,
+    AuthorizationModule,
   ],
   providers: [
     UserRepository,

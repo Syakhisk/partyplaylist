@@ -17,9 +17,7 @@ export class FirebaseStrategy extends PassportStrategy(
 
   async validate(token: string): Promise<auth.DecodedIdToken> {
     const firebaseUser = await this.firebase
-      .app()
-      .auth()
-      .verifyIdToken(token, true)
+      .verifyToken(token)
       .catch((e: Error) => {
         throw new UnauthorizedException(e.message);
       });

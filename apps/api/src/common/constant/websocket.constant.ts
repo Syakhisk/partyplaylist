@@ -4,6 +4,7 @@ export enum WebsocketEvent {
   PlayerNext = 'player.next',
   PlayerPrevious = 'player.previous',
   PlayerJump = 'player.jump',
+  ParticipantJoin = 'participant.join',
   ParticipantLeave = 'participant.leave',
   SessionHostChange = 'session.host.change',
 }
@@ -17,5 +18,8 @@ export type WebSocketEventPayload = {
   };
   [WebsocketEvent.SessionHostChange]: {
     newHostId: string;
+  };
+  [WebsocketEvent.ParticipantJoin]: {
+    userId: string;
   };
 };

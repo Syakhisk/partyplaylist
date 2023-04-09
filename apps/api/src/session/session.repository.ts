@@ -1,8 +1,17 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { customAlphabet } from 'nanoid/async';
 import { Session } from 'src/session/entities/session.entity';
-import { ISessionRepository, SessionData } from 'src/session/session.interface';
+import {
+  ISessionRepository,
+  SessionRelationOption,
+  SessionData,
+} from 'src/session/session.interface';
 import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 
@@ -38,11 +47,28 @@ export class SessionRepository implements ISessionRepository {
     return createdSession.code;
   }
 
-  async findSessionByHost(uid: string): Promise<Session> {
+  async findSessionByHost(
+    uid: string,
+    option: SessionRelationOption = undefined,
+  ): Promise<Session> {
     return this.sessionRepository.findOne({
       where: { host: { uid } },
+      relations: {
+        host: option?.user,
+        participants: option?.participants,
+      },
     });
   }
+  async endSession(code: string): Promise<void> {
+    await this.sessionRepository.delete({ code });
+  }
+
+  async checkSessionExistByCode(code: string): Promise<number> {
+    const session = await this.sessionRepository.findOne({ where: { code } });
+    if (!session) throw new NotFoundException();
+    return session.id;
+  }
+
   private static generateCode(): Promise<string> {
     const customValue = '1234567890qwertyuiopasdfghjklzxcvbnm';
     const customNanoFunc = customAlphabet(customValue, 6);
