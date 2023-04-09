@@ -49,11 +49,11 @@ export class ParticipantRepository implements IParticipantRepository {
   }
   async findARandomParticipantbySessionId(id: number): Promise<Participant> {
     return this.participantRepository
-      .createQueryBuilder()
-      .select()
+      .createQueryBuilder('participant')
+      .leftJoinAndSelect('participant.session', 'session')
+      .leftJoinAndSelect('participant.user', 'user')
       .where('session.id = :id', { id })
       .orderBy('RANDOM()')
-      .take(1)
       .getOne();
   }
   async findSessionByParticipantUid(
@@ -71,11 +71,7 @@ export class ParticipantRepository implements IParticipantRepository {
     return participant.session;
   }
   async removeParticipantByUserId(uid: string): Promise<void> {
-    await this.participantRepository
-      .createQueryBuilder()
-      .delete()
-      .where('user.uid = :uid', { uid })
-      .execute();
+    await this.participantRepository.delete({ user: { uid: uid } });
   }
   async findParticipantsBySessionId(
     sessionId: number,

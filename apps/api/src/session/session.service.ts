@@ -16,12 +16,10 @@ import {
   WebsocketEvent,
 } from 'src/common/constant/websocket.constant';
 import { GatewaySessionManager } from 'src/gateway/gateway.session';
-import { Participant } from 'src/participant/entities/participant.entity';
 import { ParticipantRepository } from 'src/participant/participant.repository';
 import { CreatedSessionDTO } from 'src/session/dtos/createdSession.dto';
 import { ParticipantsDTO } from 'src/session/dtos/getParticipants.dto';
 import { SessionDetailDTO } from 'src/session/dtos/getSessionDetail.dto';
-import { Session } from 'src/session/entities/session.entity';
 import {
   ISessionService,
   LeaveSession,
@@ -179,23 +177,20 @@ export class SessionService implements ISessionService {
     payload: ServerEventPayload[ServerEvent.UserOffline],
   ) {
     const sessionHost = await this.sessionRepo.findSessionByHost(payload.uid);
-    if (!sessionHost) {
+    if (!sessionHost) return;
+
+    const candidateHost =
+      await this.participantRepo.findARandomParticipantbySessionId(
+        sessionHost.id,
+      );
+
+    if (!candidateHost || !candidateHost.user) {
+      await this.sessionRepo.endSession(sessionHost.code);
       return;
     }
-
-    let session: Session = null;
-    let candidateHost: Participant = null;
-    while (!session && !candidateHost) {
-      candidateHost =
-        await this.participantRepo.findARandomParticipantbySessionId(
-          sessionHost.id,
-        );
-      session = await this.participantRepo.findSessionByParticipantUid(
-        candidateHost.user.uid,
-      );
-    }
-    await this.sessionRepo.changeToANewHost(session, candidateHost.user);
+    await this.sessionRepo.changeToANewHost(sessionHost, candidateHost.user);
     const socket = this.gatewayManager.getUserSocket(payload.uid);
+    if (!socket) return;
     socket
       .to(`session-${sessionHost.code}`)
       .emit(WebsocketEvent.SessionHostChange, {
@@ -219,6 +214,7 @@ export class SessionService implements ISessionService {
       (await this.sessionRepo.findSessionByHost(userId));
 
     const socket = this.gatewayManager.getUserSocket(userId);
+    if (!socket) return;
     socket.to(`session-${session.code}`).emit(event);
   }
 }

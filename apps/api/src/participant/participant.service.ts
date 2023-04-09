@@ -27,6 +27,7 @@ export class ParticipantService {
     const session = await this.participantRepo.findSessionByParticipantUid(
       payload.uid,
     );
+    if (!session) return;
     await this.participantRepo.removeParticipantByUserId(payload.uid);
 
     const socket = this.gatewayManager.getUserSocket(payload.uid);
