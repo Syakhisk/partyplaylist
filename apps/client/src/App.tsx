@@ -3,7 +3,7 @@ import { useEffect } from "react"
 import { getAuth, onAuthStateChanged } from "firebase/auth"
 
 import { browserRouter } from "@/router/browserRouter"
-import { login, useUserStore } from "@/stores/auth"
+import {  login, useUserStore } from "@/stores/auth"
 import { app } from "@/lib/firestore"
 import { socket } from "@/constants"
 
@@ -13,7 +13,6 @@ import { socket } from "@/constants"
  */
 const App = () => {
   const token = useUserStore((s) => s.token)
-
   useEffect(() => {
     const auth = getAuth(app)
     const unsubscribe = onAuthStateChanged(auth, login)
@@ -23,6 +22,7 @@ const App = () => {
 
   useEffect(() => {
     if (token) {
+      console.log(token)
       socket.auth = (cb) => {
         cb({ token })
       }

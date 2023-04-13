@@ -21,10 +21,9 @@ export class WebsocketAdapter extends IoAdapter {
     const server = super.createIOServer(port, options) as Server;
     server.use(async (socket, next) => {
       const token = socket.handshake.auth.token;
+      if (typeof token !== 'string') return next(new Error('no token send'));
       const firebaseUser = await this.firebase
-        .app()
-        .auth()
-        .verifyIdToken(token, true)
+        .verifyToken(token)
         .catch((e: Error) => {
           next(new Error(e.message));
         });

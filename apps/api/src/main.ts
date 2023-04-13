@@ -32,8 +32,9 @@ async function bootstrap() {
   patchNestjsSwagger();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
-  await app.listen(process.env.PORT);
   const appConfig = app.get(ConfigService).get<AppConfig>('app');
+  await app.listen(appConfig.port);
+
   console.log(`listening on PORT ${appConfig.host}:${appConfig.port}`);
 }
 bootstrap();

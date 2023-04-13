@@ -27,7 +27,9 @@ export class Session {
   @Column()
   name: string;
 
-  @OneToMany(() => Participant, (participant) => participant.session)
+  @OneToMany(() => Participant, (participant) => participant.session, {
+    cascade: true,
+  })
   participants: Participant[];
 
   @OneToMany(() => Song, (song) => song.session)
