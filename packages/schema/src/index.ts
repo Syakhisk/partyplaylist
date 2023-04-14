@@ -9,6 +9,8 @@ import {
   JoinSession,
   getSessionDetail,
   GetSessionDetail,
+  mySession,
+  MySession,
 } from "./session";
 import { createUserByFirebase, CreateUserByFirebase } from "./user/createUser";
 import {
@@ -25,6 +27,7 @@ export const session = {
   created: createdSession,
   join: joinSession,
   detail: getSessionDetail,
+  my: mySession,
 };
 
 export const participant = {
@@ -44,4 +47,5 @@ export declare namespace Session {
   export type Created = CreatedSession;
   export type Join = JoinSession;
   export type Detail = GetSessionDetail;
+  export type My = MySession;
 }

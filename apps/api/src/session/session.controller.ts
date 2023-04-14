@@ -29,6 +29,7 @@ import { ParticipantsDTOResponse } from 'src/session/dtos/getParticipants.dto';
 import { SessionDetailDTOResponse } from 'src/session/dtos/getSessionDetail.dto';
 import { JoinSessionDTO } from 'src/session/dtos/joinSession.dto';
 import { SessionService } from 'src/session/session.service';
+import { SwaggerMethods } from 'src/common/decorator/swagger.decorator';
 
 @ApiTags('session')
 @ApiBearerAuth()
@@ -119,6 +120,48 @@ export class SessionController {
     @Param() params: { code: string },
   ) {
     await this.sessionService.endSession(request.user.uid, params.code);
+  }
+
+  @Post('/:code/join')
+  @SwaggerMethods({
+    operation: {
+      summary: 'Join a session',
+      description: 'Join logged in user to a session',
+    },
+    param: {
+      name: 'code',
+      required: true,
+    },
+    responses: [
+      { status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' },
+      { status: HttpStatus.NOT_FOUND, description: 'Session not found' },
+      {
+        // TODO: this should be OK than CREATED
+        status: HttpStatus.CREATED,
+        description: 'Sucessfully join to a session',
+      },
+      {
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        description: 'User already joined to a session',
+      },
+    ],
+  })
+  @UseGuards(GatewayGuard)
+  async joinSession(
+    @Req() request: { user: auth.DecodedIdToken },
+    @Param() params: { code: string },
+  ) {
+    await this.sessionService.joinASession(request.user.uid, params.code);
+  }
+
+  @Get('/me')
+  @SwaggerMethods({})
+  @UseGuards(GatewayGuard)
+  async mySession(@Req() request: { user: auth.DecodedIdToken }) {
+    const session = await this.sessionService.getMySession(request.user.uid);
+    return {
+      data: session,
+    };
   }
 
   @Post('/:code/participants')
