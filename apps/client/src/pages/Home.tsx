@@ -1,30 +1,75 @@
 import Button from "@/components/Button"
-import { ChevronUpIcon } from "@heroicons/react/24/outline"
+import { socket } from "@/constants"
+import http from "@/lib/http"
+import { useState } from "react"
 import { handleLogout } from "./Login/handler"
 
 const Home = () => {
+  const [code, setCode] = useState("")
+  const [session, setSession] = useState({})
+  const [error, setError] = useState<unknown>(null)
+  const [me, setMe] = useState<unknown>(null)
+
+  const handleCreateSession = async () => {
+    const res = await http
+      .post("/sessions", {
+        name: "udin",
+      })
+      .catch((e) => setError({ msg: e.msg, data: e.response?.data }))
+
+    setSession(res?.data)
+  }
+
+  const handleJoinSession = async () => {
+    const res = await http
+      .post(`/sessions/${code}/join`)
+      .catch((e) => setError({ msg: e.msg, data: e.response?.data }))
+
+    setSession(res?.data)
+  }
+
+  const handleMe = async () => {
+    const res = await http
+      .get("/sessions/me")
+      .catch((e) => setError({ msg: e.msg, data: e.response?.data }))
+
+    setMe(res?.data)
+  }
+
+  const handleConnect = async () => {
+    if (socket.connected) {
+      console.log("connected already")
+      return
+    }
+    socket.connect()
+  }
+
+  const handleDisconnect = async () => {
+    if (socket.disconnected) {
+      console.log("disconnected already")
+      return
+    }
+    socket.disconnect()
+  }
+
   return (
-    <div className="">
+    <div className="flex flex-col gap-3">
+      <Button onClick={handleCreateSession}>Create Session</Button>
+      <div>
+        <input type="text" value={code} onChange={(e) => setCode(e.target.value)} />
+        <Button onClick={handleJoinSession}>Join Session</Button>
+      </div>
+      <Button onClick={handleMe}>Me</Button>
+      <Button onClick={handleConnect}>Connect</Button>
+      <Button onClick={handleDisconnect}>Disconnect</Button>
+
       <LogoutButton />
-      <Button variant="primary" disabled>
-        Hello
-      </Button>
-      <Button variant="warning">Hello</Button>
-      <Button variant="secondary">Hello</Button>
 
-      <Button variant="primary" outlined>
-        Hello
-      </Button>
-      <Button variant="warning" outlined>
-        Hello
-      </Button>
-      <Button variant="secondary" outlined>
-        Hello
-      </Button>
-
-      <Button Icon={ChevronUpIcon} variant="primary" />
-      <Button Icon={ChevronUpIcon} variant="warning" />
-      <Button Icon={ChevronUpIcon} variant="secondary" />
+      <div>
+        <div>{JSON.stringify({ session })}</div>
+        <div>{JSON.stringify({ error })}</div>
+        <pre>{JSON.stringify({ me }, null, 2)}</pre>
+      </div>
     </div>
   )
 }
