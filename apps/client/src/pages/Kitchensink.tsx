@@ -2,14 +2,9 @@ import Button from "@/components/Button"
 import { socket } from "@/constants"
 import http from "@/lib/http"
 import { useState } from "react"
-import { ChevronUpIcon } from "@heroicons/react/24/outline"
-import Form from "@/components/Form"
-import { ChevronUpIcon } from "@heroicons/react/24/outline"
-import { handleLogout } from "./Login/handler"
-import { session, Session } from "schema"
-import Input from "@/components/Input"
+import { handleLogout } from "@/pages/Home/handler"
 
-const Home = () => {
+const Kitchensink = () => {
   const [code, setCode] = useState("")
   const [session, setSession] = useState({})
   const [error, setError] = useState<unknown>(null)
@@ -57,26 +52,6 @@ const Home = () => {
     socket.disconnect()
   }
 
-  function handleSubmit(data: Session.Join) {
-    console.log(data)
-  }
-
-  return (
-    <div className="flex flex-col gap-4 max-w-sm mx-auto h-screen justify-center">
-      <div className="border w-full max-w-sm rounded p-1 md:p-4 flex flex-col items-center justify-center">
-        <h1 className="font-bold text-2xl text-center">🎷PartyPlaylist</h1>
-        <p className="text-muted">Non-stop jams and good vibes</p>
-
-        <div className="flex flex-col my-8 gap-4">
-          <Form onSubmit={handleSubmit} zodSchema={session.join}>
-            <Input placeholder="Session Name" id="name" />
-            <Button type="submit">Join Session</Button>
-          </Form>
-        </div>
-      </div>
-    </div>
-  )
-
   return (
     <div className="flex flex-col gap-3">
       <Button onClick={handleCreateSession}>Create Session</Button>
@@ -107,4 +82,4 @@ const LogoutButton = () => {
   )
 }
 
-export default Home
+export default Kitchensink

@@ -7,6 +7,7 @@ import {
   WebSocketServer,
   SubscribeMessage,
 } from '@nestjs/websockets';
+import { instrument } from '@socket.io/admin-ui';
 import { Server } from 'socket.io';
 import {
   ServerEvent,
@@ -17,7 +18,10 @@ import { GatewaySessionManager } from 'src/gateway/gateway.session';
 import { AuthenticatedSocket } from 'src/gateway/gateway.type';
 
 @WebSocketGateway({
-  cors: true,
+  cors: {
+    origin: ['http://localhost:3001', 'https://admin.socket.io', 'vercel.app'],
+    credentials: true,
+  },
 })
 export class MessagingGateway
   implements
@@ -32,6 +36,13 @@ export class MessagingGateway
 
   @WebSocketServer()
   server: Server;
+
+  afterInit() {
+    instrument(this.server, {
+      auth: false,
+      mode: 'development',
+    });
+  }
 
   handleConnection(client: AuthenticatedSocket) {
     console.log(`connection incoming from ${client.userId}`);

@@ -155,7 +155,11 @@ export class SessionController {
   }
 
   @Get('/me')
-  @SwaggerMethods({})
+  @SwaggerMethods({
+    operation: {
+      summary: 'Get session of logged in user',
+    },
+  })
   @UseGuards(GatewayGuard)
   async mySession(@Req() request: { user: auth.DecodedIdToken }) {
     const session = await this.sessionService.getMySession(request.user.uid);

@@ -3,7 +3,7 @@ import { participants } from "../participant";
 import { user } from "../user/user";
 
 export const createSession = z.object({
-  name: z.string(),
+  name: z.string().optional(),
 });
 
 export type CreateSession = z.infer<typeof createSession>;

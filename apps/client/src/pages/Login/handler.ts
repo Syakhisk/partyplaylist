@@ -10,8 +10,3 @@ export const handleLogin = async () => {
     uid: creds.user.uid,
   })
 }
-
-export const handleLogout = async () => {
-  const auth = getAuth(app)
-  await auth.signOut()
-}

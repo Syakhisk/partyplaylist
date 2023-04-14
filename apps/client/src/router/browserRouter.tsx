@@ -1,4 +1,6 @@
 import AuthLoading from "@/components/AuthLoading"
+import { socket } from "@/constants"
+import CLSX from "@/lib/CLSX"
 import { useUserStore } from "@/stores/auth"
 import { PropsWithChildren, useEffect } from "react"
 import { createBrowserRouter, useLocation, useNavigate } from "react-router-dom"
@@ -27,8 +29,23 @@ const Wrapper = ({ children, isPublic }: PropsWithChildren<{ isPublic?: boolean 
     return <AuthLoading />
   }
 
+  const socketStatus = socket.connected
+    ? "connected"
+    : socket.disconnected
+    ? "disconnected"
+    : "connecting"
+
+  const bgColor = socket.connected
+    ? "bg-green-500"
+    : socket.disconnected
+    ? "bg-red-500"
+    : "bg-gray-500"
+
   return (
     <div>
+      <div>
+        <div className={CLSX("w-full h-1", bgColor)} title={`WebSocket status ${socketStatus}`} />
+      </div>
       <div>{children}</div>
     </div>
   )

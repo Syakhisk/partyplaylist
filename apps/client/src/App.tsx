@@ -20,6 +20,7 @@ const App = () => {
     return unsubscribe
   }, [])
 
+  // TODO: refactor
   useEffect(() => {
     if (token) {
       console.log(token)
@@ -30,6 +31,7 @@ const App = () => {
     }
   }, [token])
 
+  // TODO: refactor
   useEffect(() => {
     socket.onAny((event, ...args) => {
       console.log(event, args)

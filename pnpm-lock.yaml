@@ -52,6 +52,9 @@ importers:
       '@nestjs/websockets':
         specifier: 9.3.12
         version: 9.3.12(@nestjs/common@9.3.12)(@nestjs/core@9.3.12)(@nestjs/platform-socket.io@9.3.12)(reflect-metadata@0.1.13)(rxjs@7.2.0)
+      '@socket.io/admin-ui':
+        specifier: ^0.5.1
+        version: 0.5.1(socket.io@4.6.1)
       bcrypt:
         specifier: ^5.1.0
         version: 5.1.0
@@ -2330,6 +2333,19 @@ packages:
       '@sinonjs/commons': 2.0.0
     dev: true
 
+  /@socket.io/admin-ui@0.5.1(socket.io@4.6.1):
+    resolution: {integrity: sha512-1dlGL2FGm6T+uL1e6iDvbo2eCINwvW7iVbjIblwh5kPPRM1SP8lmZrbFZf4QNJ/cqQ+JLcx49eXGM9WAB4TK7w==}
+    peerDependencies:
+      socket.io: '>=3.1.0'
+    dependencies:
+      '@types/bcryptjs': 2.4.2
+      bcryptjs: 2.4.3
+      debug: 4.3.4
+      socket.io: 4.6.1
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
   /@socket.io/component-emitter@3.1.0:
     resolution: {integrity: sha512-+9jVqKhRSpsc591z5vX+X5Yyw+he/HCB4iQ/RYxw35CEPaY1gnsNE43nf9n9AaYjAQrTiI/mOwKUKdUs9vf7Xg==}
 
@@ -2496,6 +2512,10 @@ packages:
     dependencies:
       '@types/node': 18.15.11
     dev: true
+
+  /@types/bcryptjs@2.4.2:
+    resolution: {integrity: sha512-LiMQ6EOPob/4yUL66SZzu6Yh77cbzJFYll+ZfaPiPPFswtIlA/Fs1MzdKYA7JApHU49zQTbJGX3PDmCpIdDBRQ==}
+    dev: false
 
   /@types/body-parser@1.19.2:
     resolution: {integrity: sha512-ALYone6pm6QmwZoAgeyNksccT9Q4AWZQ6PvfwR37GT6r6FWUPguq6sUmNGSMV2Wr761oQoBxwGGa6DR5o1DC9g==}
@@ -3382,6 +3402,10 @@ packages:
     transitivePeerDependencies:
       - encoding
       - supports-color
+    dev: false
+
+  /bcryptjs@2.4.3:
+    resolution: {integrity: sha512-V/Hy/X9Vt7f3BbPJEi8BdVFMByHi+jNXrYkW3huaybV/kQ0KJg0Y6PkEMbn+zeT+i+SiKZ/HMqJGIIt4LZDqNQ==}
     dev: false
 
   /bignumber.js@9.1.1:
