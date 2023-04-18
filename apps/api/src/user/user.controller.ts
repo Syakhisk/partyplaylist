@@ -50,6 +50,7 @@ export class UserController {
       },
     };
   }
+
   private static validate(payloadUid: string, requestUid: string): void {
     if (payloadUid !== requestUid)
       throw new HttpException(

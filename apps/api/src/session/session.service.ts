@@ -183,35 +183,47 @@ export class SessionService implements ISessionService {
       }));
 
     if (!session) {
-      throw new BadRequestException({
-        message: 'does not belong to any session',
-      });
+      return {
+        code: null,
+        name: null,
+      };
     }
-
-    const host = await this.firebaseAdmin.getUserByUID(session.host.uid);
-    const participantsIds =
-      await this.participantRepo.findParticipantsBySessionId(session.id);
-
-    const { users } = await this.firebaseAdmin.getUsersByUID(
-      participantsIds.userIds,
-    );
 
     return {
       code: session.code,
       name: session.name,
-      host: {
-        uid: host.uid,
-        displayName: host.displayName,
-        email: host.email,
-        photoURL: host.photoURL,
-      },
-      participants: users.map((user) => ({
-        uid: user.uid,
-        displayName: user.displayName,
-        email: user.email,
-        photoURL: user.photoURL,
-      })),
     };
+
+    // if (!session) {
+    //   throw new BadRequestException({
+    //     message: 'does not belong to any session',
+    //   });
+    // }
+
+    // const host = await this.firebaseAdmin.getUserByUID(session.host.uid);
+    // const participantsIds =
+    //   await this.participantRepo.findParticipantsBySessionId(session.id);
+
+    // const { users } = await this.firebaseAdmin.getUsersByUID(
+    //   participantsIds.userIds,
+    // );
+
+    // return {
+    //   code: session.code,
+    //   name: session.name,
+    //   host: {
+    //     uid: host.uid,
+    //     displayName: host.displayName,
+    //     email: host.email,
+    //     photoURL: host.photoURL,
+    //   },
+    //   participants: users.map((user) => ({
+    //     uid: user.uid,
+    //     displayName: user.displayName,
+    //     email: user.email,
+    //     photoURL: user.photoURL,
+    //   })),
+    // };
   }
 
   @OnEvent(ServerEvent.UserOffline)

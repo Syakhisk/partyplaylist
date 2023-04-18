@@ -1,5 +1,5 @@
 import Button from "@/components/Button"
-import { socket } from "@/constants"
+import { socket } from "@/lib/socket"
 import http from "@/lib/http"
 import { useState } from "react"
 import { handleLogout } from "@/pages/Home/handler"

@@ -4,9 +4,22 @@ import Input from "@/components/Input"
 import { session, Session } from "schema"
 import { useNavigate } from "react-router-dom"
 import { handleLogout } from "./handler"
+import { useEffect } from "react"
+import http from "@/lib/http"
+import { useUserStore } from "@/stores/auth"
 
 const Home = () => {
   const navigate = useNavigate()
+  const token = useUserStore((s) => s.token)
+
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-extra-semi
+    ;(async () => {
+      // if (!token) return
+      // const session = await http.get("/sessions/me")
+      // console.log(session)
+    })()
+  }, [token])
 
   function handleSubmit(data: Session.Create) {
     console.log(data)

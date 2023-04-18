@@ -28,9 +28,14 @@ export const getSessionDetail = z.object({
 
 export type GetSessionDetail = z.infer<typeof getSessionDetail>;
 
+// export const mySession = z.object({
+//   ...getSessionDetail.shape,
+//   ...participants.shape,
+// });
+
 export const mySession = z.object({
-  ...getSessionDetail.shape,
-  ...participants.shape,
+  code: z.string(),
+  name: z.string(),
 });
 
 export type MySession = z.infer<typeof mySession>;

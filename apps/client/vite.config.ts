@@ -7,7 +7,7 @@ import * as path from "path"
 export default defineConfig({
   plugins: [react(), eslint({ useEslintrc: true, exclude: ["**/node_modules/**", "**/dist/**"] })],
   optimizeDeps: {
-    include: ['schema']
+    include: ["schema"],
   },
   resolve: {
     alias: {

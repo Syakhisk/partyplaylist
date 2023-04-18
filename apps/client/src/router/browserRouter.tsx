@@ -1,5 +1,5 @@
 import AuthLoading from "@/components/AuthLoading"
-import { socket } from "@/constants"
+// import { socket } from "@/lib/socket"
 import CLSX from "@/lib/CLSX"
 import { useUserStore } from "@/stores/auth"
 import { PropsWithChildren, useEffect } from "react"
@@ -29,17 +29,20 @@ const Wrapper = ({ children, isPublic }: PropsWithChildren<{ isPublic?: boolean 
     return <AuthLoading />
   }
 
-  const socketStatus = socket.connected
-    ? "connected"
-    : socket.disconnected
-    ? "disconnected"
-    : "connecting"
+  // const socketStatus = socket.connected
+  //   ? "connected"
+  //   : socket.disconnected
+  //   ? "disconnected"
+  //   : "connecting"
 
-  const bgColor = socket.connected
-    ? "bg-green-500"
-    : socket.disconnected
-    ? "bg-red-500"
-    : "bg-gray-500"
+  // const bgColor = socket.connected
+  //   ? "bg-green-500"
+  //   : socket.disconnected
+  //   ? "bg-red-500"
+  //   : "bg-gray-500"
+
+  const bgColor = "bg-gray-500"
+  const socketStatus = "unknown"
 
   return (
     <div>
