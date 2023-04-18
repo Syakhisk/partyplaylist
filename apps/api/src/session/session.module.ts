@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthorizationModule } from 'src/authorization/authorization.module';
 import { GatewayModule } from 'src/gateway/gateway.module';
@@ -11,22 +11,17 @@ import { SessionRepository } from 'src/session/session.repository';
 import { SessionService } from 'src/session/session.service';
 import { User } from 'src/user/entities/user.entity';
 import { UserModule } from 'src/user/user.module';
-import { UserRepository } from 'src/user/user.repository';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Session, User, Participant]),
     UserModule,
     GatewayModule,
-    ParticipantModule,
+    forwardRef(() => ParticipantModule),
     AuthorizationModule,
   ],
-  providers: [
-    UserRepository,
-    SessionRepository,
-    SessionService,
-    ParticipantRepository,
-  ],
+  providers: [SessionRepository, SessionService, ParticipantRepository],
   controllers: [SessionController],
+  exports: [SessionRepository],
 })
 export class SessionModule {}
