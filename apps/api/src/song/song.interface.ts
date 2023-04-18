@@ -9,7 +9,7 @@ export type SongActionEnum = 'queueUp' | 'queueDown' | 'top' | 'bottom';
 export interface ISongRepository {
   addNewSong(newSong: NewSongPayload): Promise<CreatedSongDTO>;
   changeSongById(
-    sessionId: string,
+    sessionId: number,
     songId: string,
     action: SongActionEnum,
   ): Promise<void>;

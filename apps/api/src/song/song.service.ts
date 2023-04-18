@@ -65,7 +65,7 @@ export class SongService implements ISongService {
       throw new ForbiddenException({
         message: 'trying to accessing a different session',
       });
-  
-    this.songRepo.
+
+    this.songRepo.changeSongById(sessionId, songId, action);
   }
 }

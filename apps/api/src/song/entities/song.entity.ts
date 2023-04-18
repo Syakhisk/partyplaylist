@@ -5,9 +5,11 @@ import {
   Index,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Unique,
 } from 'typeorm';
 
 @Entity()
+@Unique(['position'], { deferrable: 'INITIALLY DEFERRED' })
 export class Song {
   @PrimaryGeneratedColumn()
   id: number;
@@ -31,6 +33,5 @@ export class Song {
   song_url: string;
 
   @Index()
-  @Column({ unique: true })
   position: number;
 }
