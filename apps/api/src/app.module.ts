@@ -16,6 +16,8 @@ import { APP_PIPE } from '@nestjs/core';
 import { ZodValidationPipe } from '@anatine/zod-nestjs';
 import { GatewayModule } from 'src/gateway/gateway.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { SongModule } from './song/song.module';
+import { ParticipantModule } from 'src/participant/participant.module';
 
 @Module({
   imports: [
@@ -46,6 +48,8 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     UserModule,
     ResourceModule,
     SessionModule,
+    ParticipantModule,
+    SongModule,
   ],
   providers: [
     {

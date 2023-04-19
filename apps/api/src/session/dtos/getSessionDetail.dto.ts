@@ -1,9 +1,9 @@
 import { createZodDto } from '@anatine/zod-nestjs';
 import { extendApi } from '@anatine/zod-openapi';
-import { httpResponse, session } from 'schema';
+import { httpResponse, getSessionDetail } from 'schema';
 
-const sessionDetail = extendApi(session.detail, {
-  title: 'created Session schema',
+const sessionDetail = extendApi(getSessionDetail, {
+  title: 'Session detail schema',
 });
 
 export class SessionDetailDTO extends createZodDto(sessionDetail) {}

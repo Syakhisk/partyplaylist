@@ -1,8 +1,8 @@
 import { createZodDto } from '@anatine/zod-nestjs';
 import { extendApi } from '@anatine/zod-openapi';
-import { httpResponse, user } from 'schema';
+import { createdUserByFirebase, httpResponse } from 'schema';
 
-const createdUser = extendApi(user.createdByFirebase, {
+const createdUser = extendApi(createdUserByFirebase, {
   title: 'createUser by Firebase',
 });
 export class CreatedUserDTO extends createZodDto(createdUser) {}
