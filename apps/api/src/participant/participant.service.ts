@@ -39,22 +39,6 @@ export class ParticipantService implements IParticipantService {
     private readonly participantRepo: ParticipantRepository,
   ) {}
 
-  async joinASession(userId: string, sessionCode: string): Promise<void> {
-    await this.userRepo.checkUserExist(userId);
-    const sessionId = await this.sessionRepo.checkSessionExistByCode(
-      sessionCode,
-    );
-    await this.sessionRepo.checkSessionAvaibility(userId);
-    await this.participantRepo.checkParticipantAvaibility(userId);
-    await this.participantRepo.joinSession(userId, sessionId);
-    const socket = this.gatewayManager.getUserSocket(userId);
-    if (!socket) return;
-    socket.to(`session-${sessionCode}`).emit(WebsocketEvent.ParticipantJoin, {
-      userId,
-    } as WebSocketEventPayload[WebsocketEvent.ParticipantJoin]);
-    this.gatewayManager.joinRoom(userId, `session-${sessionCode}`);
-  }
-
   async getParticipantsBySessionCode(
     requestUID: string,
     code: string,

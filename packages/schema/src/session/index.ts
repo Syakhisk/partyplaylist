@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { participants } from "../participant";
 import { user } from "../user/user";
 
 export const createSession = z.object({
@@ -20,8 +21,16 @@ export const joinSession = z.object({
 export type JoinSession = z.infer<typeof joinSession>;
 
 export const getSessionDetail = z.object({
+  code: z.string(),
   name: z.string(),
   host: user,
 });
 
 export type GetSessionDetail = z.infer<typeof getSessionDetail>;
+
+export const mySession = z.object({
+  ...getSessionDetail.shape,
+  ...participants.shape,
+});
+
+export type MySession = z.infer<typeof mySession>;

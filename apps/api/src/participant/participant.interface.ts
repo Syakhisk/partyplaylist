@@ -26,7 +26,6 @@ export interface IParticipantRepository {
   ): Promise<{ userIds: string[] }>;
 }
 export interface IParticipantService {
-  joinASession(userId: string, sessionCode: string): Promise<void>;
   getParticipantsBySessionCode(
     requestUID: string,
     code: string,

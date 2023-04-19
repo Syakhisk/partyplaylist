@@ -34,11 +34,12 @@ export class MessagingGateway
   server: Server;
 
   handleConnection(client: AuthenticatedSocket) {
-    console.log('connection incoming');
+    console.log(`connection incoming from ${client.userId}`);
     this.gatewaySession.setUserSocket(client.userId, client);
   }
 
   async handleDisconnect(client: AuthenticatedSocket) {
+    console.log(`connection lost from ${client.userId}`);
     await this.eventEmitter.emitAsync(ServerEvent.UserOffline, {
       uid: client.userId,
     } as ServerEventPayload[ServerEvent.UserOffline]);

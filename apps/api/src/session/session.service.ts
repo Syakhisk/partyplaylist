@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Inject,
   Injectable,
@@ -21,6 +22,7 @@ import { SessionDetailDTO } from 'src/session/dtos/getSessionDetail.dto';
 import { ISessionService, SessionData } from 'src/session/session.interface';
 import { SessionRepository } from 'src/session/session.repository';
 import { UserRepository } from 'src/user/user.repository';
+import { MySessionDTO } from './dtos/mySession.dto';
 
 @Injectable()
 export class SessionService implements ISessionService {
@@ -69,6 +71,7 @@ export class SessionService implements ISessionService {
       });
     const host = await this.firebaseAdmin.getUserByUID(session.host.uid);
     return {
+      code: session.code,
       name: session.name,
       host: {
         uid: host.uid,
@@ -89,6 +92,60 @@ export class SessionService implements ISessionService {
         message: 'trying to delete another session',
       });
     await this.sessionRepo.endSession(code);
+  }
+  async joinASession(userId: string, sessionCode: string): Promise<void> {
+    await this.userRepo.checkUserExist(userId);
+    const sessionId = await this.sessionRepo.checkSessionExistByCode(
+      sessionCode,
+    );
+    await this.sessionRepo.checkSessionAvaibility(userId);
+    await this.participantRepo.checkParticipantAvaibility(userId);
+    await this.participantRepo.joinSession(userId, sessionId);
+    const socket = this.gatewayManager.getUserSocket(userId);
+    if (!socket) return;
+    socket.to(`session-${sessionCode}`).emit(WebsocketEvent.ParticipantJoin, {
+      userId,
+    } as WebSocketEventPayload[WebsocketEvent.ParticipantJoin]);
+    this.gatewayManager.joinRoom(userId, `session-${sessionCode}`);
+  }
+
+  async getMySession(requestUID: string): Promise<MySessionDTO> {
+    const session =
+      (await this.sessionRepo.findSessionByHost(requestUID, { user: true })) ??
+      (await this.participantRepo.findSessionByParticipantUid(requestUID, {
+        user: true,
+      }));
+
+    if (!session) {
+      throw new BadRequestException({
+        message: 'does not belong to any session',
+      });
+    }
+
+    const host = await this.firebaseAdmin.getUserByUID(session.host.uid);
+    const participantsIds =
+      await this.participantRepo.findParticipantsBySessionId(session.id);
+
+    const { users } = await this.firebaseAdmin.getUsersByUID(
+      participantsIds.userIds,
+    );
+
+    return {
+      code: session.code,
+      name: session.name,
+      host: {
+        uid: host.uid,
+        displayName: host.displayName,
+        email: host.email,
+        photoURL: host.photoURL,
+      },
+      participants: users.map((user) => ({
+        uid: user.uid,
+        displayName: user.displayName,
+        email: user.email,
+        photoURL: user.photoURL,
+      })),
+    };
   }
 
   @OnEvent(ServerEvent.UserOffline)

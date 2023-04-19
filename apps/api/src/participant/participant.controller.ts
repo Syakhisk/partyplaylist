@@ -26,6 +26,7 @@ import { GatewayGuard } from 'src/gateway/gateway.guard';
 import { ParticipantService } from 'src/participant/participant.service';
 import { ParticipantsDTOResponse } from 'src/participant/dtos/getParticipants.dto';
 import { JoinSessionDTO } from 'src/session/dtos/joinSession.dto';
+import { SwaggerMethods } from 'src/common/decorator/swagger.decorator';
 
 @ApiTags('participants')
 @ApiBearerAuth()
@@ -38,31 +39,6 @@ export class ParticipantController {
     @Inject(ParticipantService)
     private readonly participantService: ParticipantService,
   ) {}
-
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({
-    summary: 'Join to a session',
-    description: 'user join to a session',
-  })
-  @ApiBody({
-    type: JoinSessionDTO,
-  })
-  @ApiParam({
-    name: 'code',
-  })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-  })
-  @UseGuards(GatewayGuard)
-  async postParticipantByCodeHandler(
-    @Req() request: { user: auth.DecodedIdToken },
-    @Body() payload: JoinSessionDTO,
-    @Param() params: { code: string },
-  ) {
-    ParticipantController.validatePost(request.user.uid, payload.userId);
-    await this.participantService.joinASession(request.user.uid, params.code);
-  }
 
   @Get()
   @ApiOperation({
@@ -87,6 +63,31 @@ export class ParticipantController {
         participants,
       },
     };
+  }
+
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary: 'Join to a session',
+    description: 'user join to a session',
+  })
+  @ApiBody({
+    type: JoinSessionDTO,
+  })
+  @ApiParam({
+    name: 'code',
+  })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+  })
+  @UseGuards(GatewayGuard)
+  async postParticipantByCodeHandler(
+    @Req() request: { user: auth.DecodedIdToken },
+    @Body() payload: JoinSessionDTO,
+    @Param() params: { code: string },
+  ) {
+    ParticipantController.validatePost(request.user.uid, payload.userId);
+    await this.participantService.joinASession(request.user.uid, params.code);
   }
 
   @Delete('/:userId')

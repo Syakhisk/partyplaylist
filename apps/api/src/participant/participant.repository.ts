@@ -27,7 +27,7 @@ export class ParticipantRepository implements IParticipantRepository {
       );
     if (session.code !== code)
       throw new HttpException(
-        { messsage: 'participant not in this session' },
+        { message: 'participant not in this session' },
         HttpStatus.UNPROCESSABLE_ENTITY,
       );
   }
@@ -64,7 +64,9 @@ export class ParticipantRepository implements IParticipantRepository {
       where: { user: { uid } },
       relations: {
         user: option?.user,
-        session: true,
+        session: {
+          host: true,
+        },
       },
     });
     if (!participant) return null;
