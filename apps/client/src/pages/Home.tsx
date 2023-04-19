@@ -1,10 +1,11 @@
 import Button from "@/components/Button"
-import { socket } from "@/constants"
+import { useSocket } from "@/context/socket"
 import http from "@/lib/http"
 import { useState } from "react"
 import { handleLogout } from "./Login/handler"
 
 const Home = () => {
+  const socket = useSocket()
   const [code, setCode] = useState("")
   const [session, setSession] = useState({})
   const [error, setError] = useState<unknown>(null)

@@ -1,6 +1,7 @@
 import { User } from "firebase/auth"
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
+
 export const useUserStore = create<userStore>()(
   persist(
     (_set) => ({
