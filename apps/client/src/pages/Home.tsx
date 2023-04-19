@@ -1,6 +1,6 @@
 import Button from "@/components/Button"
-import { useSocket } from "@/context/socket"
 import http from "@/lib/http"
+import { useSocket } from "@/lib/socket"
 import { useState } from "react"
 import { handleLogout } from "./Login/handler"
 

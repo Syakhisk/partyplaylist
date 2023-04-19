@@ -4,7 +4,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth"
 import { browserRouter } from "@/router/browserRouter"
 import { login } from "@/stores/auth"
 import { app } from "@/lib/firestore"
-import { SocketProvider } from "./context/socket"
+import SocketProvider from "./lib/socket/provider"
 
 /**
  * Global listener, such as auth,

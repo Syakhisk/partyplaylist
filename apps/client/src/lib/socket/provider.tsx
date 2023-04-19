@@ -1,21 +1,10 @@
-import React, { PropsWithChildren, useEffect, useState } from "react"
-import { io, Socket } from "socket.io-client"
 import { API_BASE_URL } from "@/constants"
 import { useUserStore } from "@/stores/auth"
+import { PropsWithChildren, useEffect, useState } from "react"
+import { io } from "socket.io-client"
+import { SocketContext } from "."
 
-export const SocketContext = React.createContext<ReturnType<typeof io> | null>(null)
-
-export const useSocket = () => {
-  const context = React.useContext(SocketContext)
-
-  if (!context) {
-    throw new Error("useSocket must be used within a SocketProvider")
-  }
-
-  return context
-}
-
-export const SocketProvider = ({ children }: PropsWithChildren) => {
+const SocketProvider = ({ children }: PropsWithChildren) => {
   const token = useUserStore((s) => s.token)
   const [socket] = useState<ReturnType<typeof io>>(() =>
     io(API_BASE_URL, {
@@ -56,6 +45,4 @@ export const SocketProvider = ({ children }: PropsWithChildren) => {
   )
 }
 
-// export type ExtendedSocketType = ReturnType<typeof io> | {
-//   on: (eventName: string, cb: () => void) => void
-// }
+export default SocketProvider
