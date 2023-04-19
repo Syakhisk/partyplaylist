@@ -81,6 +81,8 @@ export class SongRepository implements ISongRepository {
               where: { position: selectedSong.position - 1 },
               lock: { mode: 'pessimistic_write' },
             });
+            if (!upperSong) break;
+
             await tx.update(
               Song,
               {
