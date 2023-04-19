@@ -6,7 +6,7 @@ import { SocketContext } from "."
 
 const SocketProvider = ({ children }: PropsWithChildren) => {
   const token = useUserStore((s) => s.token)
-  const [socket] = useState<ReturnType<typeof io>>(() =>
+  const [socket] = useState(() =>
     io(API_BASE_URL, {
       autoConnect: false,
     })
@@ -20,7 +20,7 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     socket.onAny((event, ...args) => {
-      console.log("SSS", event, args)
+      console.log(event, args)
     })
 
     socket.on("connect", () => {
@@ -32,8 +32,7 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
     })
 
     return () => {
-      // socket.removeAllListeners()
-      socket.disconnect()
+      socket.removeAllListeners()
     }
   }, [socket])
 
