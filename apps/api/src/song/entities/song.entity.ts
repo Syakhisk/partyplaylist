@@ -33,5 +33,6 @@ export class Song {
   song_url: string;
 
   @Index()
+  @Column()
   position: number;
 }

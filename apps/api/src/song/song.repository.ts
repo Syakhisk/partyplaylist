@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Song } from 'src/song/entities/song.entity';
 import {
@@ -8,6 +8,7 @@ import {
 } from 'src/song/song.interface';
 import { Repository } from 'typeorm';
 import { CreatedSongDTO } from 'src/song/dtos/addedSong.dto';
+import { SongsDetailDTO } from 'src/song/dtos/songDetails.dto';
 
 @Injectable()
 export class SongRepository implements ISongRepository {
@@ -22,150 +23,190 @@ export class SongRepository implements ISongRepository {
     song_title,
     song_url,
     channel_name,
+    thumbnail_url,
   }: NewSongPayload): Promise<CreatedSongDTO> {
-    await this.songRepository.queryRunner.startTransaction('READ COMMITTED');
-    try {
-      const latestSong = await this.songRepository.findOne({
-        select: { position: true },
-        order: { position: 'DESC' },
-        lock: { mode: 'pessimistic_write' },
-      });
+    return this.songRepository.manager.transaction(
+      'READ COMMITTED',
+      async (tx) => {
+        const latestSong = (
+          await tx.find(Song, {
+            select: { position: true },
+            order: { position: 'DESC' },
+            lock: { mode: 'pessimistic_write' },
+            take: 1,
+          })
+        ).at(0);
 
-      const newSong = await this.songRepository.save(
-        this.songRepository.create({
-          session: {
-            id: sessionId,
-          },
-          channel_name,
-          song_id,
-          song_title,
-          song_url,
-          position: latestSong ? latestSong.position + 1 : 1,
-        }),
-      );
+        const newSong = await tx.save(
+          tx.create(Song, {
+            session: {
+              id: sessionId,
+            },
+            thumbnail_url,
+            channel_name,
+            song_id,
+            song_title,
+            song_url,
+            position: latestSong ? latestSong.position + 1 : 1,
+          }),
+        );
 
-      await this.songRepository.queryRunner.commitTransaction();
-      return {
-        songId: newSong.id,
-        position: newSong.position,
-      };
-    } catch (e) {
-      await this.songRepository.queryRunner.rollbackTransaction();
-    } finally {
-      await this.songRepository.queryRunner.release();
-    }
+        return {
+          id: newSong.id,
+          position: newSong.position,
+        };
+      },
+    );
   }
 
   async changeSongById(
     sessionId: number,
-    songId: string,
+    songId: number,
     action: SongActionEnum,
   ): Promise<void> {
-    await this.songRepository.queryRunner.startTransaction('READ COMMITTED');
-    try {
-      const selectedSong = await this.songRepository.findOne({
-        select: { position: true, id: true },
-        where: { song_id: songId, session: { id: sessionId } },
-        lock: { mode: 'pessimistic_write' },
-      });
-      if (!selectedSong) return;
+    await this.songRepository.manager.transaction(
+      'READ COMMITTED',
+      async (tx) => {
+        const selectedSong = await tx.findOne(Song, {
+          select: { position: true, id: true },
+          where: { id: songId, session: { id: sessionId } },
+          lock: { mode: 'pessimistic_write' },
+        });
+        if (!selectedSong) throw new NotFoundException();
+        switch (action) {
+          case 'queueUp':
+            if (selectedSong.position <= 1) break;
+            const upperSong = await tx.findOne(Song, {
+              select: { position: true, id: true },
+              where: { position: selectedSong.position - 1 },
+              lock: { mode: 'pessimistic_write' },
+            });
+            await tx.update(
+              Song,
+              {
+                id: upperSong.id,
+              },
+              {
+                position: selectedSong.position,
+              },
+            );
+            await tx.update(
+              Song,
+              {
+                id: selectedSong.id,
+              },
+              {
+                position: selectedSong.position - 1,
+              },
+            );
+            break;
+          case 'queueDown':
+            const lowerSong = await tx.findOne(Song, {
+              select: { position: true, id: true },
+              where: { position: selectedSong.position + 1 },
+              lock: { mode: 'pessimistic_write' },
+            });
+            if (!lowerSong) break;
 
-      switch (action) {
-        case 'queueUp':
-          if (selectedSong.position <= 1) break;
-          const upperSong = await this.songRepository.findOne({
-            select: { position: true, id: true },
-            where: { position: selectedSong.position - 1 },
-          });
-          await this.songRepository.update(
-            {
-              id: upperSong.id,
-            },
-            {
-              position: selectedSong.position,
-            },
-          );
-          await this.songRepository.update(
-            {
-              id: selectedSong.id,
-            },
-            {
-              position: selectedSong.position - 1,
-            },
-          );
-          break;
-        case 'queueDown':
-          const lowerSong = await this.songRepository.findOne({
-            select: { position: true, id: true },
-            where: { position: selectedSong.position + 1 },
-          });
-          if (!lowerSong) break;
+            await tx.update(
+              Song,
+              {
+                id: selectedSong.id,
+              },
+              {
+                position: selectedSong.position + 1,
+              },
+            );
+            await tx.update(
+              Song,
+              {
+                id: lowerSong.id,
+              },
+              {
+                position: selectedSong.position,
+              },
+            );
+            break;
+          case 'top':
+            if (selectedSong.position <= 1) break;
+            await tx
+              .createQueryBuilder()
+              .useTransaction(true)
+              .setLock('pessimistic_write')
+              .update(Song)
+              .set({
+                position: () => 'position +1',
+              })
+              .where('position < :position', {
+                position: selectedSong.position,
+              })
+              .execute();
+            await tx.update(
+              Song,
+              {
+                id: selectedSong.id,
+              },
+              {
+                position: 1,
+              },
+            );
+            break;
+          case 'bottom':
+            const bottomSong = (
+              await tx.find(Song, {
+                select: { position: true, id: true },
+                where: { session: { id: sessionId } },
+                order: { position: 'DESC' },
+                lock: { mode: 'pessimistic_write' },
+                take: 1,
+              })
+            ).at(0);
+            if (!bottomSong) break;
 
-          await this.songRepository.update(
-            {
-              id: selectedSong.id,
-            },
-            {
-              position: selectedSong.position + 1,
-            },
-          );
-          await this.songRepository.update(
-            {
-              id: lowerSong.id,
-            },
-            {
-              position: selectedSong.position,
-            },
-          );
-          break;
-        case 'top':
-          if (selectedSong.position <= 1) break;
-          await this.songRepository
-            .createQueryBuilder()
-            .update(Song)
-            .set({
-              position: () => 'position +1',
-            })
-            .where('position < :position', { position: selectedSong.position })
-            .execute();
-          await this.songRepository.update(
-            {
-              id: selectedSong.id,
-            },
-            {
-              position: 1,
-            },
-          );
-        case 'bottom':
-          const bottomSong = await this.songRepository.findOne({
-            select: { position: true, id: true },
-            order: { position: 'DESC' },
-          });
-          if (!bottomSong) break;
-          await this.songRepository
-            .createQueryBuilder()
-            .update(Song)
-            .set({
-              position: () => 'position -1',
-            })
-            .where('position > :position', { position: selectedSong.position })
-            .execute();
-          await this.songRepository.update(
-            {
-              id: selectedSong.id,
-            },
-            {
-              position: bottomSong.position,
-            },
-          );
-          break;
-      }
+            await tx.update(
+              Song,
+              {
+                id: selectedSong.id,
+              },
+              {
+                position: bottomSong.position + 1,
+              },
+            );
+            await tx
+              .createQueryBuilder()
+              .useTransaction(true)
+              .setLock('pessimistic_write')
+              .update(Song)
+              .set({
+                position: () => 'position -1',
+              })
+              .where('position > :position', {
+                position: selectedSong.position,
+              })
+              .execute();
+            break;
+        }
+      },
+    );
+  }
 
-      await this.songRepository.queryRunner.commitTransaction();
-    } catch (e) {
-      await this.songRepository.queryRunner.rollbackTransaction();
-    } finally {
-      await this.songRepository.queryRunner.release();
-    }
+  async getSongsBySessionId(sessionId: number): Promise<SongsDetailDTO> {
+    const songs = await this.songRepository.find({
+      where: { session: { id: sessionId } },
+      order: { position: 'ASC' },
+    });
+
+    if (!songs) return null;
+
+    return {
+      songs,
+    };
+  }
+
+  async checkSongExistsById(songId: number): Promise<void> {
+    const song = await this.songRepository.findOne({
+      where: { id: songId },
+    });
+    if (!song) throw new NotFoundException();
   }
 }

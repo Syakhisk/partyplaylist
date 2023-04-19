@@ -9,7 +9,12 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
 import { GatewayGuard } from 'src/gateway/gateway.guard';
 import { SongService } from 'src/song/song.service';
 import { AddSongDTO } from './dtos/addSong.dto';
@@ -26,15 +31,22 @@ import { PutSongDTO } from 'src/song/dtos/putSong.dto';
 })
 export class SongController {
   constructor(@Inject(SongService) private readonly songService: SongService) {}
+
   @Get()
+  @ApiParam({
+    name: 'code',
+  })
   @UseGuards(FirebaseAuthGuard)
-  async getSongsHandler(@Param() sessionId: string) {
-    // throw new Error('Not implemented');
+  async getSongsHandler(
+    @Param() param: { code: string },
+    @Req() request: { user: auth.DecodedIdToken },
+  ) {
+    const data = await this.songService.getSongsBySessionCode(
+      request.user.uid,
+      param.code,
+    );
     return {
-      data: {
-        session_id: sessionId,
-        name: 'test',
-      },
+      data,
     };
   }
 
@@ -43,21 +55,20 @@ export class SongController {
     summary: 'Add new Song',
     description: 'Add new Song to a session',
   })
-  @UseGuards(GatewayGuard)
+  // @UseGuards(GatewayGuard)
+  @UseGuards(FirebaseAuthGuard)
   async addSongHandler(
     @Param('code') sessionId: string,
     @Req() request: { user: auth.DecodedIdToken },
     @Body() payload: AddSongDTO,
   ): Promise<CreatedSongDTOResponse> {
-    const newSong = await this.songService.addNewSong(
+    const data = await this.songService.addNewSong(
       sessionId,
       request.user.uid,
       payload,
     );
     return {
-      data: {
-        ...newSong,
-      },
+      data,
     };
   }
 
@@ -65,6 +76,12 @@ export class SongController {
   @ApiOperation({
     summary: 'do song action',
     description: 'queueUp, queueDown, top and bottom to change the queue',
+  })
+  @ApiParam({
+    name: 'code',
+  })
+  @ApiParam({
+    name: 'songId',
   })
   @UseGuards(GatewayGuard)
   async putSongHandler(
@@ -76,7 +93,7 @@ export class SongController {
       action: payload.action,
       requestId: request.user.uid,
       sessionCode: param.code,
-      songId: param.songId,
+      songId: +param.songId,
     });
   }
 }

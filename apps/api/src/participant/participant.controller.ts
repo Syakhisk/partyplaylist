@@ -1,11 +1,9 @@
 import {
   Controller,
-  Post,
   HttpCode,
   HttpStatus,
   UseGuards,
   Req,
-  Body,
   Param,
   Get,
   Delete,
@@ -14,7 +12,6 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
-  ApiBody,
   ApiOperation,
   ApiParam,
   ApiResponse,
@@ -25,13 +22,11 @@ import { FirebaseAuthGuard } from 'src/authorization/firebase/firebase.guard';
 import { GatewayGuard } from 'src/gateway/gateway.guard';
 import { ParticipantService } from 'src/participant/participant.service';
 import { ParticipantsDTOResponse } from 'src/participant/dtos/getParticipants.dto';
-import { JoinSessionDTO } from 'src/session/dtos/joinSession.dto';
-import { SwaggerMethods } from 'src/common/decorator/swagger.decorator';
 
 @ApiTags('participants')
 @ApiBearerAuth()
 @Controller({
-  path: 'session/:code/participants',
+  path: 'sessions/:code/participants',
   version: '1',
 })
 export class ParticipantController {
@@ -63,31 +58,6 @@ export class ParticipantController {
         participants,
       },
     };
-  }
-
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({
-    summary: 'Join to a session',
-    description: 'user join to a session',
-  })
-  @ApiBody({
-    type: JoinSessionDTO,
-  })
-  @ApiParam({
-    name: 'code',
-  })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-  })
-  @UseGuards(GatewayGuard)
-  async postParticipantByCodeHandler(
-    @Req() request: { user: auth.DecodedIdToken },
-    @Body() payload: JoinSessionDTO,
-    @Param() params: { code: string },
-  ) {
-    ParticipantController.validatePost(request.user.uid, payload.userId);
-    await this.participantService.joinASession(request.user.uid, params.code);
   }
 
   @Delete('/:userId')

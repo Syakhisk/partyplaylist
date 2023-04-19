@@ -11,13 +11,19 @@ export const addSong = z.object({
 export type AddSong = z.infer<typeof addSong>;
 
 export const createdSong = z.object({
-  songId: z.number(),
+  id: z.number(),
   position: z.number(),
 });
 
 export const putSong = z.object({
   action: z.enum(["queueUp", "queueDown", "top", "bottom"]),
 });
+
+export const songsDetail = z.object({
+  songs: z.array(addSong.merge(createdSong)),
+});
+
+export type SongsDetail = z.infer<typeof songsDetail>;
 
 export type PutSong = z.infer<typeof putSong>;
 

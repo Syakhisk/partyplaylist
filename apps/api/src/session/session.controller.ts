@@ -52,7 +52,8 @@ export class SessionController {
     type: CreatedSessionDTOResponse,
     status: HttpStatus.CREATED,
   })
-  @UseGuards(GatewayGuard)
+  // @UseGuards(GatewayGuard)
+  @UseGuards(FirebaseAuthGuard)
   async postSessionHandler(
     @Req()
     request: {
