@@ -211,4 +211,27 @@ export class SongRepository implements ISongRepository {
     });
     if (!song) throw new NotFoundException();
   }
+
+  async deleteSongById(sessionId: number, songId: number): Promise<void> {
+    await this.songRepository.manager.transaction(
+      'READ COMMITTED',
+      async (tx) => {
+        const song = await tx.findOne(Song, {
+          where: { session: { id: sessionId }, id: songId },
+          lock: { mode: 'pessimistic_write' },
+        });
+        if (!song) throw new NotFoundException();
+
+        await tx.delete(Song, { session: { id: sessionId }, id: songId });
+        await tx
+          .createQueryBuilder()
+          .useTransaction(true)
+          .setLock('pessimistic_write')
+          .update(Song)
+          .set({ position: () => 'position -1' })
+          .where('position > :position', { position: song.position })
+          .execute();
+      },
+    );
+  }
 }

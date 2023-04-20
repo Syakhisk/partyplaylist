@@ -23,6 +23,7 @@ export interface ISongRepository {
   ): Promise<void>;
   getSongsBySessionId(sessionId: number): Promise<SongsDetailDTO>;
   checkSongExistsById(songId: number): Promise<void>;
+  deleteSongById(sessionId: number, songId: number): Promise<void>;
 }
 
 export interface ISongService {
@@ -31,9 +32,17 @@ export interface ISongService {
     requestId: string,
     song: AddSongDTO,
   ): Promise<CreatedSongDTO>;
+
   changeSong(songActionPayload: SongActionPayload): Promise<void>;
+
   getSongsBySessionCode(
     requestId: string,
     sessionCode: string,
   ): Promise<SongsDetailDTO>;
+
+  deleteSong(
+    requestId: string,
+    sessionCode: string,
+    songId: number,
+  ): Promise<void>;
 }

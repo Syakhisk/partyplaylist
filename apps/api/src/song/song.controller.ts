@@ -1,7 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Inject,
   Param,
   Post,
@@ -95,5 +98,29 @@ export class SongController {
       sessionCode: param.code,
       songId: +param.songId,
     });
+  }
+
+  @Delete('/:songId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'delete song',
+    description: 'delete song by songId',
+  })
+  @ApiParam({
+    name: 'code',
+  })
+  @ApiParam({
+    name: 'songId',
+  })
+  @UseGuards(GatewayGuard)
+  async deleteSongHandler(
+    @Param() param: { code: string; songId: string },
+    @Req() request: { user: auth.DecodedIdToken },
+  ): Promise<void> {
+    await this.songService.deleteSong(
+      request.user.uid,
+      param.code,
+      +param.songId,
+    );
   }
 }

@@ -50,6 +50,15 @@ export class SongService implements ISongService {
     return this.songRepo.getSongsBySessionId(sessionId);
   }
 
+  async deleteSong(
+    requestId: string,
+    sessionCode: string,
+    songId: number,
+  ): Promise<void> {
+    const sessionId = await this.validateSession(requestId, sessionCode);
+    await this.songRepo.checkSongExistsById(songId);
+    await this.songRepo.deleteSongById(sessionId, songId);
+  }
   private async validateSession(requestId: string, sessionCode: string) {
     await this.userRepo.checkUserExist(requestId);
     const sessionId = await this.sessionRepo.checkSessionExistByCode(
