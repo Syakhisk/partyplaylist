@@ -1,4 +1,4 @@
-import { getToken } from "@/stores/auth"
+import { getToken } from "@/stores/userStore"
 import { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from "axios"
 
 declare module "axios" {

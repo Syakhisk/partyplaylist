@@ -2,7 +2,7 @@ import Button from "@/components/Button"
 import { useNavigate } from "react-router-dom"
 import { handleCreateSession, handleLogout } from "./handler"
 import { useEffect } from "react"
-import { useUserStore } from "@/stores/auth"
+import { useUserStore } from "@/stores/userStore"
 import Layout from "@/components/Layout"
 
 const Home = () => {

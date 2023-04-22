@@ -29,7 +29,7 @@ const Listen = () => {
       </div>
 
       <div>
-        <Button onClick={() => handleLeaveSession(code)}>Leave Session</Button>
+        <Button onClick={handleLeaveSession}>Leave Session</Button>
       </div>
     </Layout>
   )

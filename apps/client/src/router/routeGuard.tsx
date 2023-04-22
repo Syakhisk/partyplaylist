@@ -1,5 +1,5 @@
 import Loading from "@/components/Loading"
-import { useUserStore } from "@/stores/auth"
+import { useUserStore } from "@/stores/userStore"
 import { PropsWithChildren, useEffect } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 

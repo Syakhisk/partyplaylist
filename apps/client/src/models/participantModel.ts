@@ -1,5 +1,5 @@
 import http from "@/lib/http"
-import { useUserStore } from "@/stores/auth"
+import { useUserStore } from "@/stores/userStore"
 
 const Participant = {
   kick: (code: string, uid: string) => http.delete(`/sessions/${code}/participants/${uid}`),

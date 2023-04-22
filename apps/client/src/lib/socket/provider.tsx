@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "@/constants"
-import { useUserStore } from "@/stores/auth"
+import { useUserStore } from "@/stores/userStore"
 import { PropsWithChildren, useEffect, useState } from "react"
 import { io } from "socket.io-client"
 import { SocketContext } from "."
