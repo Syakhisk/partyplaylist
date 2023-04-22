@@ -1,4 +1,4 @@
-const AuthLoading = () => {
+const Loading = () => {
   return (
     <div className="h-screen w-screen grid place-items-center">
       <div className="relative grid place-items-center">
@@ -9,4 +9,4 @@ const AuthLoading = () => {
   )
 }
 
-export default AuthLoading
+export default Loading

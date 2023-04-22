@@ -4,6 +4,8 @@ import Public from "@/pages/Public"
 import Login from "@/pages/Login"
 import Private from "@/pages/Private"
 import { RouteObject } from "react-router-dom"
+import Kitchensink from "@/pages/Kitchensink"
+import Listen from "@/pages/Listen"
 
 type AugmentedRouteObject = RouteObject & {
   isPublic?: boolean
@@ -16,8 +18,8 @@ const routes: AugmentedRouteObject[] = [
     component: Home,
   },
   {
-    path: "/private",
-    component: Private,
+    path: "/kitchensink",
+    component: Kitchensink,
   },
   {
     path: "/login",
@@ -25,9 +27,12 @@ const routes: AugmentedRouteObject[] = [
     isPublic: true,
   },
   {
-    path: "/public",
-    component: Public,
-    isPublic: true,
+    path: "/listen/:code?",
+    component: Listen,
+  },
+  {
+    path: "/404",
+    component: NotFound,
   },
   {
     path: "*",

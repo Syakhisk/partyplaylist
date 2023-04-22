@@ -1,10 +1,12 @@
+import Layout from "@/components/Layout"
 import Button from "@/components/Button"
-import { socket } from "@/constants"
 import http from "@/lib/http"
+import { useSocket } from "@/lib/socket"
 import { useState } from "react"
 import { handleLogout } from "./Login/handler"
 
-const Home = () => {
+const Kitchensink = () => {
+  const socket = useSocket()
   const [code, setCode] = useState("")
   const [session, setSession] = useState({})
   const [error, setError] = useState<unknown>(null)
@@ -53,24 +55,26 @@ const Home = () => {
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <Button onClick={handleCreateSession}>Create Session</Button>
-      <div>
-        <input type="text" value={code} onChange={(e) => setCode(e.target.value)} />
-        <Button onClick={handleJoinSession}>Join Session</Button>
-      </div>
-      <Button onClick={handleMe}>Me</Button>
-      <Button onClick={handleConnect}>Connect</Button>
-      <Button onClick={handleDisconnect}>Disconnect</Button>
+    <Layout>
+      <div className="flex flex-col gap-3">
+        <Button onClick={handleCreateSession}>Create Session</Button>
+        <div>
+          <input type="text" value={code} onChange={(e) => setCode(e.target.value)} />
+          <Button onClick={handleJoinSession}>Join Session</Button>
+        </div>
+        <Button onClick={handleMe}>Me</Button>
+        <Button onClick={handleConnect}>Connect</Button>
+        <Button onClick={handleDisconnect}>Disconnect</Button>
 
-      <LogoutButton />
+        <LogoutButton />
 
-      <div>
-        <div>{JSON.stringify({ session })}</div>
-        <div>{JSON.stringify({ error })}</div>
-        <pre>{JSON.stringify({ me }, null, 2)}</pre>
+        <div>
+          <div>{JSON.stringify({ session })}</div>
+          <div>{JSON.stringify({ error })}</div>
+          <pre>{JSON.stringify({ me }, null, 2)}</pre>
+        </div>
       </div>
-    </div>
+    </Layout>
   )
 }
 
@@ -82,4 +86,4 @@ const LogoutButton = () => {
   )
 }
 
-export default Home
+export default Kitchensink

@@ -1,18 +1,18 @@
 import { RouterProvider } from "react-router-dom"
 import { useEffect } from "react"
 import { getAuth, onAuthStateChanged } from "firebase/auth"
-
 import { browserRouter } from "@/router/browserRouter"
-import { login, useUserStore } from "@/stores/auth"
+import { login } from "@/stores/userStore"
 import { app } from "@/lib/firestore"
-import { socket } from "@/constants"
+import SocketProvider from "./lib/socket/provider"
+import "react-toastify/dist/ReactToastify.css"
+import { ToastContainer } from "react-toastify"
 
 /**
  * Global listener, such as auth,
  * should be placed in this component.
  */
 const App = () => {
-  const token = useUserStore((s) => s.token)
   useEffect(() => {
     const auth = getAuth(app)
     const unsubscribe = onAuthStateChanged(auth, login)
@@ -20,37 +20,12 @@ const App = () => {
     return unsubscribe
   }, [])
 
-  useEffect(() => {
-    if (token) {
-      console.log(token)
-      socket.auth = (cb) => {
-        cb({ token })
-      }
-      socket.connect()
-    }
-  }, [token])
-
-  useEffect(() => {
-    socket.onAny((event, ...args) => {
-      console.log(event, args)
-    })
-
-    socket.on("connect", () => {
-      console.log("connected", socket.id)
-    })
-
-    socket.on("disconnect", (reason) => {
-      console.log("disconnected", reason)
-    })
-
-    return () => {
-      socket.removeAllListeners()
-    }
-  }, [])
-
   return (
     <>
-      <RouterProvider router={browserRouter} />
+      <SocketProvider>
+        <RouterProvider router={browserRouter} />
+        <ToastContainer />
+      </SocketProvider>
     </>
   )
 }
