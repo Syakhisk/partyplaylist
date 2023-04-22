@@ -1,4 +1,4 @@
-import AuthLoading from "@/components/AuthLoading"
+import Loading from "@/components/Loading"
 import { useUserStore } from "@/stores/auth"
 import { PropsWithChildren, useEffect } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
@@ -23,7 +23,7 @@ export const RouteGuard = ({ children, isPublic }: PropsWithChildren<{ isPublic?
   }, [navigate, isPublic, token, location, authLoading])
 
   if (authLoading) {
-    return <AuthLoading />
+    return <Loading />
   }
 
   return (

@@ -12,6 +12,8 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
     })
   )
 
+  const [status, setStatus] = useState<"idle" | "connected" | "disconnected">("idle")
+
   useEffect(() => {
     if (!token) return
     socket.auth = (cb) => cb({ token })
@@ -25,10 +27,12 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
 
     socket.on("connect", () => {
       console.log("connected", socket.id)
+      setStatus("connected")
     })
 
     socket.on("disconnect", (reason) => {
       console.log("disconnected", reason)
+      setStatus("disconnected")
     })
 
     return () => {
@@ -38,7 +42,7 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
 
   // prettier-ignore
   return (
-    <SocketContext.Provider value={socket}>
+    <SocketContext.Provider value={{socket, status}}>
       {children}
     </SocketContext.Provider>
   )

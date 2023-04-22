@@ -6,9 +6,9 @@ import { io } from "socket.io-client"
 // import type {} from ".pnpm/@socket.io+component-emitter@3.1.0/node_modules/@socket.io/component-emitter"
 // import type {} from "socket.io-client"
 
-export const SocketContext = createContext<IoReturnTypeOrNull>(null)
+export const SocketContext = createContext<SocketContextType | null>(null)
 
-export const useSocket = (): IoReturnType => {
+export const useSocket = (): SocketContextType => {
   const context = useContext(SocketContext)
 
   if (!context) {
@@ -19,4 +19,7 @@ export const useSocket = (): IoReturnType => {
 }
 
 type IoReturnType = ReturnType<typeof io>
-type IoReturnTypeOrNull = IoReturnType | null
+export interface SocketContextType {
+  socket: IoReturnType
+  status: "idle" | "connected" | "disconnected"
+}

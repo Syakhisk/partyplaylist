@@ -5,6 +5,8 @@ import { browserRouter } from "@/router/browserRouter"
 import { login } from "@/stores/auth"
 import { app } from "@/lib/firestore"
 import SocketProvider from "./lib/socket/provider"
+import "react-toastify/dist/ReactToastify.css"
+import { ToastContainer } from "react-toastify"
 
 /**
  * Global listener, such as auth,
@@ -22,6 +24,7 @@ const App = () => {
     <>
       <SocketProvider>
         <RouterProvider router={browserRouter} />
+        <ToastContainer />
       </SocketProvider>
     </>
   )

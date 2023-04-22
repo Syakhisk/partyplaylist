@@ -20,12 +20,17 @@ export const joinSession = z.object({
 
 export type JoinSession = z.infer<typeof joinSession>;
 
-export const getSessionDetail = z.object({
+export const sessionDetail = z.object({
   code: z.string(),
   name: z.string(),
   host: user,
 });
 
+export type SessionDetail = z.infer<typeof sessionDetail>;
+
+// TODO: Remove this and change on all occurrences.
+// this is only for backwards compatibility
+export const getSessionDetail = sessionDetail;
 export type GetSessionDetail = z.infer<typeof getSessionDetail>;
 
 export const mySession = z.object({
