@@ -6,7 +6,7 @@ import { useState } from "react"
 import { handleLogout } from "./Login/handler"
 
 const Kitchensink = () => {
-  const socket = useSocket()
+  const { socket } = useSocket()
   const [code, setCode] = useState("")
   const [session, setSession] = useState({})
   const [error, setError] = useState<unknown>(null)
@@ -80,7 +80,7 @@ const Kitchensink = () => {
 
 const LogoutButton = () => {
   return (
-    <Button outlined onClick={handleLogout}>
+    <Button variant="outline-primary" onClick={handleLogout}>
       <div className="inline-flex">Logout</div>
     </Button>
   )

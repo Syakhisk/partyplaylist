@@ -1,9 +1,12 @@
 import CLSX from "@/lib/CLSX"
+import clsx from "clsx"
+
+type ColorVariant = "primary" | "secondary" | "warning"
+type TypeVariant = "outline" | "borderless"
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children?: React.ReactNode
-  variant?: "primary" | "secondary" | "warning"
-  outlined?: boolean
+  variant?: ColorVariant | `${TypeVariant}-${ColorVariant}`
   Icon?: React.ElementType
   iconPosition?: "before" | "after"
 }
@@ -11,7 +14,6 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 const Button = ({
   children,
   variant = "primary",
-  outlined = false,
   iconPosition = "before",
   Icon,
   ...rest
@@ -20,19 +22,18 @@ const Button = ({
     primary: "bg-red-500 enabled:hover:bg-red-600",
     secondary: "bg-gray-500 enabled:hover:bg-gray-600",
     warning: "bg-yellow-500 enabled:hover:bg-yellow-600",
-  }
-
-  const outlinedColors = {
-    primary: "border-red-500 text-red-500 enabled:hover:bg-red-500",
-    secondary: "border-gray-500 text-gray-500 enabled:hover:bg-gray-500",
-    warning: "border-yellow-500 text-yellow-500 enabled:hover:bg-yellow-500",
+    "outline-primary": "border-red-500 text-red-500 enabled:hover:bg-red-500",
+    "outline-secondary": "border-gray-500 text-gray-500 enabled:hover:bg-gray-500",
+    "outline-warning": "border-yellow-500 text-yellow-500 enabled:hover:bg-yellow-500",
+    "borderless-primary": "text-inherit enabled:hover:text-red-500",
+    "borderless-secondary": "text-inherit enabled:hover:text-gray-500",
+    "borderless-warning": "text-inherit enabled:hover:text-yellow-500",
   }
 
   const baseClasses = CLSX`
 inline-flex
 items-center
 justify-center
-font-medium
 rounded
 transition
 ease-in-out
@@ -46,15 +47,21 @@ disabled:opacity-50
 disabled:cursor-not-allowed
 `
 
-  const buttonClasses = CLSX(
+  const outlined = variant.includes("outline")
+  const borderless = variant.includes("borderless")
+
+  const buttonClasses = clsx(
     baseClasses,
     disabledClasses,
-    !outlined && [colors[variant], "text-white"],
-    outlined && [outlinedColors[variant], "enabled:hover:text-white outline outline-1"]
+    colors[variant],
+    !outlined && !borderless && "text-white",
+    outlined && "enabled:hover:text-white outline outline-1",
+    !borderless && "font-medium",
+    borderless && "enabled:hover:text-white underline underline-offset-2"
   )
 
   return (
-    <button {...rest} className={CLSX(buttonClasses, rest.className)}>
+    <button {...rest} className={clsx(buttonClasses, rest.className)}>
       {Icon && iconPosition === "before" && <Icon className="h-5 w-5" />}
       {children && children}
       {Icon && iconPosition === "after" && <Icon className="h-5 w-5" />}

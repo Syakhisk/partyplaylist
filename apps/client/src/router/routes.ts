@@ -1,8 +1,6 @@
 import Home from "@/pages/Home"
 import NotFound from "@/components/NotFound"
-import Public from "@/pages/Public"
 import Login from "@/pages/Login"
-import Private from "@/pages/Private"
 import { RouteObject } from "react-router-dom"
 import Kitchensink from "@/pages/Kitchensink"
 import Listen from "@/pages/Listen"

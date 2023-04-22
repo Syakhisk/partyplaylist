@@ -9,15 +9,15 @@ const Login = () => {
         <p className="text-muted">Non-stop jams and good vibes</p>
 
         <div className="flex flex-col my-8 gap-4">
-          <Button outlined disabled title="Coming Soon!">
+          <Button disabled title="Coming Soon!" variant="outline-primary">
             <div className="inline-flex">Login with Email and Password</div>
           </Button>
 
-          <Button outlined disabled title="Coming Soon!">
+          <Button disabled title="Coming Soon!" variant="outline-primary">
             <div className="inline-flex">Login Anonymously</div>
           </Button>
 
-          <Button outlined onClick={handleLogin}>
+          <Button onClick={handleLogin} variant="outline-primary">
             <svg
               role="img"
               viewBox="0 0 24 24"

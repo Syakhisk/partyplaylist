@@ -2,6 +2,10 @@ import { z } from "zod";
 import { participants } from "../participant";
 import { user } from "../user/user";
 
+// TODO: add suffixes:
+// - Schema: createSessionSchema
+// - Type: CreateSessionType
+
 export const createSession = z.object({
   name: z.string(),
 });
@@ -19,6 +23,12 @@ export const joinSession = z.object({
 });
 
 export type JoinSession = z.infer<typeof joinSession>;
+
+export const joinSessionFormSchema = z.object({
+  code: z.string(),
+});
+
+export type JoinSessionFormSchema = z.infer<typeof joinSessionFormSchema>;
 
 export const sessionDetail = z.object({
   code: z.string(),

@@ -20,7 +20,6 @@ export const handleGetDetail = async (code: string) => {
   }
 
   setSession(res.data)
-
   return res.data
 }
 

@@ -13,9 +13,23 @@ export const handleCreateSession = async () => {
   const toastId = toast("Creating session...", { autoClose: false })
 
   const res = await Session.create()
-  if (res.error) return
+  if (res.error) {
+    toast.update(toastId, { render: "Failed to create session!", type: "error", autoClose: 2000 })
+    return
+  }
 
   toast.update(toastId, { render: "Session created!", type: "success", autoClose: 2000 })
 
   browserRouter.navigate(`/listen/${res.data.code}`)
+}
+
+export const handleJoinSession = async ({ code }: { code: string }) => {
+  const toastId = toast("Joining session...", { autoClose: false })
+
+  const res = await Session.join(code)
+  if (res.error) return
+
+  toast.update(toastId, { render: "Session joined!", type: "success", autoClose: 2000 })
+
+  browserRouter.navigate(`/listen/${code}`)
 }

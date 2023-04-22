@@ -9,12 +9,13 @@ type Props = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSubmit: (data: any, methods: UseFormReturn) => void
   zodSchema: ZodSchema
+  className: string
 }
 
 // TODO: tried using generics as below, but it doesn't work
 // /**
 // * Form component that uses zod for validation
-// * @example 
+// * @example
 // * function handleSubmit<CreateSession>(data: CreateSession) {
 // *  console.log(data)
 // * }
@@ -23,7 +24,7 @@ type Props = {
 // *   <Button type="submit">Create a Session</Button>
 // * </Form>
 // */
-const Form = ({ defaultValues, children, onSubmit, zodSchema }: Props) => {
+const Form = ({ defaultValues, className = "", children, onSubmit, zodSchema }: Props) => {
   const methods = useForm({
     defaultValues,
     resolver: zodResolver(zodSchema),
@@ -31,7 +32,9 @@ const Form = ({ defaultValues, children, onSubmit, zodSchema }: Props) => {
   const { handleSubmit } = methods
   return (
     <FormProvider {...methods}>
-      <form onSubmit={handleSubmit((data) => onSubmit(data, methods))}>{children}</form>
+      <form className={className} onSubmit={handleSubmit((data) => onSubmit(data, methods))}>
+        {children}
+      </form>
     </FormProvider>
   )
 }
