@@ -1,6 +1,6 @@
 import Participant from "@/models/participantModel"
 import Session from "@/models/sessionModel"
-import { browserRouter } from "@/router/browserRouter"
+import { router } from "@/stores/routerStore"
 import { setSession, useSessionStore } from "@/stores/sessionStore"
 import { useUserStore } from "@/stores/userStore"
 import { toast } from "react-toastify"
@@ -37,5 +37,5 @@ export const handleLeaveSession = async () => {
   }
 
   toast.success("You have left the session")
-  browserRouter.navigate("/")
+  router().navigate("/")
 }

@@ -1,4 +1,5 @@
 import Loading from "@/components/Loading"
+import { useRouterStore } from "@/stores/routerStore"
 import { useUserStore } from "@/stores/userStore"
 import { PropsWithChildren, useEffect } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
@@ -15,6 +16,13 @@ export const RouteGuard = ({ children, isPublic }: PropsWithChildren<{ isPublic?
   const token = useUserStore((state) => state.token)
   const authLoading = useUserStore((state) => state.authLoading)
 
+  // Set the navigate function in the routerStore
+  // since we can't use the navigate function from react-router-dom
+  // outside of the react component.
+  useEffect(() => {
+    useRouterStore.setState({ navigate })
+  }, [navigate])
+
   useEffect(() => {
     if (authLoading) return
 
@@ -26,10 +34,5 @@ export const RouteGuard = ({ children, isPublic }: PropsWithChildren<{ isPublic?
     return <Loading />
   }
 
-  return (
-    <div>
-      <div>{children}</div>
-    </div>
-  )
+  return <>{children}</>
 }
-

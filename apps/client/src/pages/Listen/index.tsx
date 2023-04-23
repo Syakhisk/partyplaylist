@@ -14,7 +14,7 @@ const Listen = () => {
     // eslint-disable-next-line @typescript-eslint/no-extra-semi
     ;(async () => {
       if (!code) return navigate("/")
-      handleGetDetail(code)
+      await handleGetDetail(code)
       setLoading(false)
     })()
   }, [code, navigate])
