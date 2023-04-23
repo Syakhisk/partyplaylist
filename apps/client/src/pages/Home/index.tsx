@@ -16,13 +16,13 @@ const Home = () => {
           <h1 className="font-bold text-2xl text-center">🎷PartyPlaylist</h1>
           <p className="text-muted">Non-stop jams and good vibes</p>
 
-          <div className="flex flex-col my-8 gap-4 w-full">
+          <div className="flex flex-col my-8 gap-4 w-full px-2">
             <Form
               zodSchema={joinSessionFormSchema}
               onSubmit={handleJoinSession}
               className="flex flex-col gap-4"
             >
-              <Input id="code" />
+              <Input id="code" placeholder="Session Code" />
               <Button type="submit">Join a Session</Button>
             </Form>
             <Button variant="borderless-primary" onClick={handleCreateSession}>

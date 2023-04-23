@@ -62,12 +62,21 @@ export class SessionService implements ISessionService {
         user: true,
       }));
     if (!session)
+      // TODO: need a way to defined forbidden type
+      // since same http status code can have different meaning.
+      // use zod?
       throw new ForbiddenException({
-        message: 'not belong to a corresponding session',
+        message: {
+          type: 'NOT_IN_SESSION',
+          message: 'not belong to a corresponding session',
+        },
       });
     if (session.code !== code)
       throw new ForbiddenException({
-        message: 'trying to accessing a different session',
+        message: {
+          type: 'JOINED_ANOTHER_SESSION',
+          message: 'trying to accessing a different session',
+        },
       });
     const host = await this.firebaseAdmin.getUserByUID(session.host.uid);
     return {

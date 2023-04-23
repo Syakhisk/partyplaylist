@@ -9,7 +9,7 @@ declare module "axios" {
 
   export interface AxiosResponse {
     error: {
-      message: string
+      message: string | { type: string; message: string }
       status: number
       code: string
       name: string

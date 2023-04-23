@@ -9,11 +9,31 @@ export const handleGetDetail = async (code: string) => {
   const res = await Session.show(code)
 
   if (res.error) {
-    const { status } = res.error
+    const { status, message } = res.error
 
-    if (status === 404) {
-      browserRouter.navigate("/404")
-      toast.error("Session not found")
+    switch (status) {
+      case 404:
+        router().navigate("/404")
+        toast.error("Session not found")
+        break
+
+      case 403:
+        if(typeof message === 'string') {
+          toast.error(message)
+        }
+
+        else if(message.type === "NOT_IN_SESSION") {
+          // join session modal
+        }
+
+        else if(message.type === "JOINED_ANOTHER_SESSION") {
+          // redirect to current session?
+        }
+
+      break
+
+      default:
+        break
     }
 
     return
