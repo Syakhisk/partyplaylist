@@ -25,7 +25,7 @@ export const joinSession = z.object({
 export type JoinSession = z.infer<typeof joinSession>;
 
 export const joinSessionFormSchema = z.object({
-  code: z.string(),
+  code: z.string().nonempty(),
 });
 
 export type JoinSessionFormSchema = z.infer<typeof joinSessionFormSchema>;
