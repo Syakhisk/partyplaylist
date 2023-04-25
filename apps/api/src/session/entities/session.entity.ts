@@ -29,9 +29,10 @@ export class Session {
 
   @OneToMany(() => Participant, (participant) => participant.session, {
     cascade: true,
+    onDelete: 'CASCADE',
   })
   participants: Participant[];
 
-  @OneToMany(() => Song, (song) => song.session)
+  @OneToMany(() => Song, (song) => song.session, { onDelete: 'CASCADE' })
   songs: Song[];
 }

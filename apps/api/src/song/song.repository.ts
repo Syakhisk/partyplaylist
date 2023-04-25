@@ -6,7 +6,7 @@ import {
   NewSongPayload,
   SongActionEnum,
 } from 'src/song/song.interface';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { CreatedSongDTO } from 'src/song/dtos/addedSong.dto';
 import { SongsDetailDTO } from 'src/song/dtos/songDetails.dto';
 
@@ -64,6 +64,7 @@ export class SongRepository implements ISongRepository {
     songId: number,
     action: SongActionEnum,
   ): Promise<void> {
+    //consistent transaction based on position ASC
     await this.songRepository.manager.transaction(
       'READ COMMITTED',
       async (tx) => {
@@ -73,76 +74,44 @@ export class SongRepository implements ISongRepository {
           lock: { mode: 'pessimistic_write' },
         });
         if (!selectedSong) throw new NotFoundException();
+
         switch (action) {
           case 'queueUp':
             if (selectedSong.position <= 1) break;
             const upperSong = await tx.findOne(Song, {
               select: { position: true, id: true },
-              where: { position: selectedSong.position - 1 },
+              where: {
+                position: selectedSong.position - 1,
+                session: { id: sessionId },
+              },
               lock: { mode: 'pessimistic_write' },
             });
             if (!upperSong) break;
 
-            await tx.update(
-              Song,
-              {
-                id: upperSong.id,
-              },
-              {
-                position: selectedSong.position,
-              },
-            );
-            await tx.update(
-              Song,
-              {
-                id: selectedSong.id,
-              },
-              {
-                position: selectedSong.position - 1,
-              },
-            );
+            await this.switchSongOrder(tx, upperSong, selectedSong);
+
             break;
           case 'queueDown':
             const lowerSong = await tx.findOne(Song, {
               select: { position: true, id: true },
-              where: { position: selectedSong.position + 1 },
+              where: {
+                position: selectedSong.position + 1,
+                session: { id: sessionId },
+              },
               lock: { mode: 'pessimistic_write' },
             });
             if (!lowerSong) break;
 
-            await tx.update(
-              Song,
-              {
-                id: selectedSong.id,
-              },
-              {
-                position: selectedSong.position + 1,
-              },
-            );
-            await tx.update(
-              Song,
-              {
-                id: lowerSong.id,
-              },
-              {
-                position: selectedSong.position,
-              },
-            );
+            await this.switchSongOrder(tx, selectedSong, lowerSong);
+
             break;
-          case 'top':
+          case 'top': {
             if (selectedSong.position <= 1) break;
-            await tx
-              .createQueryBuilder()
-              .useTransaction(true)
-              .setLock('pessimistic_write')
-              .update(Song)
-              .set({
-                position: () => 'position +1',
-              })
-              .where('position < :position', {
-                position: selectedSong.position,
-              })
-              .execute();
+            await this.changeSongPositionByPlusOne(
+              sessionId,
+              selectedSong.position,
+              tx,
+            );
             await tx.update(
               Song,
               {
@@ -153,7 +122,9 @@ export class SongRepository implements ISongRepository {
               },
             );
             break;
-          case 'bottom':
+          }
+
+          case 'bottom': {
             const bottomSong = (
               await tx.find(Song, {
                 select: { position: true, id: true },
@@ -174,19 +145,14 @@ export class SongRepository implements ISongRepository {
                 position: bottomSong.position + 1,
               },
             );
-            await tx
-              .createQueryBuilder()
-              .useTransaction(true)
-              .setLock('pessimistic_write')
-              .update(Song)
-              .set({
-                position: () => 'position -1',
-              })
-              .where('position > :position', {
-                position: selectedSong.position,
-              })
-              .execute();
+
+            await this.changeSongPositionByMinusOne(
+              sessionId,
+              selectedSong.position,
+              tx,
+            );
             break;
+          }
         }
       },
     );
@@ -216,22 +182,97 @@ export class SongRepository implements ISongRepository {
     await this.songRepository.manager.transaction(
       'READ COMMITTED',
       async (tx) => {
-        const song = await tx.findOne(Song, {
+        const deletedSong = await tx.findOne(Song, {
           where: { session: { id: sessionId }, id: songId },
           lock: { mode: 'pessimistic_write' },
         });
-        if (!song) throw new NotFoundException();
+        if (!deletedSong) throw new NotFoundException();
 
         await tx.delete(Song, { session: { id: sessionId }, id: songId });
-        await tx
-          .createQueryBuilder()
-          .useTransaction(true)
-          .setLock('pessimistic_write')
-          .update(Song)
-          .set({ position: () => 'position -1' })
-          .where('position > :position', { position: song.position })
-          .execute();
+        await this.changeSongPositionByMinusOne(
+          sessionId,
+          deletedSong.position,
+          tx,
+        );
       },
     );
+  }
+
+  private async switchSongOrder(
+    tx: EntityManager,
+    upperSong: Song,
+    lowerSong: Song,
+  ): Promise<void> {
+    await tx.update(
+      Song,
+      {
+        id: upperSong.id,
+      },
+      {
+        position: lowerSong.position,
+      },
+    );
+    await tx.update(
+      Song,
+      {
+        id: lowerSong.id,
+      },
+      {
+        position: upperSong.position,
+      },
+    );
+  }
+
+  private async changeSongPositionByMinusOne(
+    sessionId: number,
+    position: number,
+    tx: EntityManager | undefined = undefined,
+  ) {
+    const subQuery = this.songRepository
+      .createQueryBuilder('song')
+      .setLock('pessimistic_write')
+      .select('song.id')
+      .leftJoin('session', 'session', 'session.id = song.session.id')
+      .where('session.id = :sessionId', { sessionId })
+      .andWhere('song.position > :position', {
+        position,
+      })
+      .orderBy('song.position', 'ASC');
+
+    await (tx ?? this.songRepository)
+      .createQueryBuilder()
+      .update(Song)
+      .set({
+        position: () => 'position -1',
+      })
+      .where(`id IN (${subQuery.getQuery()})`)
+      .setParameters(subQuery.getParameters())
+      .execute();
+  }
+
+  private async changeSongPositionByPlusOne(
+    sessionId: number,
+    position: number,
+    tx: EntityManager | undefined = undefined,
+  ) {
+    const subQuery = this.songRepository
+      .createQueryBuilder('song')
+      .setLock('pessimistic_write')
+      .select('song.id')
+      .leftJoin('session', 'session', 'session.id = song.session.id')
+      .where('session.id = :sessionId', { sessionId })
+      .andWhere('song.position < :position', {
+        position: position,
+      })
+      .orderBy('song.position', 'ASC');
+    await (tx ?? this.songRepository)
+      .createQueryBuilder()
+      .update(Song)
+      .set({
+        position: () => 'position + 1',
+      })
+      .where(`id IN (${subQuery.getQuery()})`)
+      .setParameters(subQuery.getParameters())
+      .execute();
   }
 }

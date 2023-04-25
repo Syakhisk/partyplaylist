@@ -6,7 +6,7 @@ import { useState } from "react"
 import { handleLogout } from "./Login/handler"
 
 const Kitchensink = () => {
-  const socket = useSocket()
+  const { socket } = useSocket()
   const [code, setCode] = useState("")
   const [session, setSession] = useState({})
   const [error, setError] = useState<unknown>(null)

@@ -70,6 +70,7 @@ export class SessionService implements ISessionService {
         message: 'trying to accessing a different session',
       });
     const host = await this.firebaseAdmin.getUserByUID(session.host.uid);
+
     return {
       code: session.code,
       name: session.name,
@@ -93,6 +94,7 @@ export class SessionService implements ISessionService {
       });
     await this.sessionRepo.endSession(code);
   }
+
   async joinASession(userId: string, sessionCode: string): Promise<void> {
     await this.userRepo.checkUserExist(userId);
     const sessionId = await this.sessionRepo.checkSessionExistByCode(

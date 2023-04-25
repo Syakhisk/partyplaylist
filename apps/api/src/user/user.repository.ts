@@ -2,7 +2,7 @@ import {
   Injectable,
   HttpException,
   HttpStatus,
-  NotFoundException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/entities/user.entity';
@@ -34,7 +34,7 @@ export class UserRepository implements IUserRepository {
       where: { uid },
     });
     if (user === null)
-      throw new NotFoundException({
+      throw new UnprocessableEntityException({
         message: 'user not found',
       });
   }

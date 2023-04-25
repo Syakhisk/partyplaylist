@@ -1,7 +1,7 @@
-import { SessionDetail } from "schema"
+import { GetSessionDetail } from "schema"
 import { create } from "zustand"
 
-export const useSessionStore = create<SessionDetail>(() => ({
+export const useSessionStore = create<GetSessionDetail>(() => ({
   code: "",
   name: "",
   host: {
@@ -12,4 +12,4 @@ export const useSessionStore = create<SessionDetail>(() => ({
   },
 }))
 
-export const setSession = (store: SessionDetail) => useSessionStore.setState(store)
+export const setSession = (store: GetSessionDetail) => useSessionStore.setState(store)

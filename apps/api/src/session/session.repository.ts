@@ -1,8 +1,7 @@
 import {
-  HttpException,
-  HttpStatus,
   Injectable,
   NotFoundException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { customAlphabet } from 'nanoid/async';
@@ -29,10 +28,9 @@ export class SessionRepository implements ISessionRepository {
   async checkSessionAvaibility(userUID: string): Promise<void> {
     const session = await this.findSessionByHost(userUID);
     if (session)
-      throw new HttpException(
-        { message: 'user already have a host, must end it first' },
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      );
+      throw new UnprocessableEntityException({
+        message: 'user already have a host, must end it first',
+      });
   }
   async addNewSession(sessionData: SessionData): Promise<string> {
     const newCode = await SessionRepository.generateCode();

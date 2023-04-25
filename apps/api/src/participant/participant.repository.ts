@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Participant } from 'src/participant/entities/participant.entity';
 import {
@@ -21,15 +21,13 @@ export class ParticipantRepository implements IParticipantRepository {
   ): Promise<void> {
     const session = await this.findSessionByParticipantUid(uid);
     if (!session)
-      throw new HttpException(
-        { message: 'participant doesnt belong any session' },
-        HttpStatus.NOT_FOUND,
-      );
+      throw new UnprocessableEntityException({
+        message: 'participant doesnt belong any session',
+      });
     if (session.code !== code)
-      throw new HttpException(
-        { message: 'participant not in this session' },
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      );
+      throw new UnprocessableEntityException({
+        message: 'participant not in this session',
+      });
   }
   async joinSession(uid: string, sessionId: number): Promise<void> {
     const participant = this.participantRepository.create({
@@ -39,14 +37,15 @@ export class ParticipantRepository implements IParticipantRepository {
 
     await this.participantRepository.save(participant);
   }
+
   async checkParticipantAvaibility(uid: string): Promise<void> {
     const session = await this.findSessionByParticipantUid(uid);
     if (session)
-      throw new HttpException(
-        { message: 'already joined in another session, leave first' },
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      );
+      throw new UnprocessableEntityException({
+        message: 'already joined in another session, leave first',
+      });
   }
+
   async findARandomParticipantbySessionId(id: number): Promise<Participant> {
     return this.participantRepository
       .createQueryBuilder('participant')
@@ -56,6 +55,7 @@ export class ParticipantRepository implements IParticipantRepository {
       .orderBy('RANDOM()')
       .getOne();
   }
+
   async findSessionByParticipantUid(
     uid: string,
     option: ParticipantRelationOption | undefined = undefined,
@@ -72,9 +72,11 @@ export class ParticipantRepository implements IParticipantRepository {
     if (!participant) return null;
     return participant.session;
   }
+
   async removeParticipantByUserId(uid: string): Promise<void> {
     await this.participantRepository.delete({ user: { uid: uid } });
   }
+
   async findParticipantsBySessionId(
     sessionId: number,
   ): Promise<{ userIds: string[] }> {
