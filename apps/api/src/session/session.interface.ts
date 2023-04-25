@@ -1,5 +1,4 @@
 import { CreatedSessionDTO } from 'src/session/dtos/createdSession.dto';
-import { ParticipantsDTO } from 'src/participant/dtos/getParticipants.dto';
 import { SessionDetailDTO } from 'src/session/dtos/getSessionDetail.dto';
 import { Session } from 'src/session/entities/session.entity';
 import { User } from 'src/user/entities/user.entity';

@@ -12,12 +12,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiParam,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { GatewayGuard } from 'src/gateway/gateway.guard';
 import { SongService } from 'src/song/song.service';
 import { AddSongDTO } from './dtos/addSong.dto';
@@ -25,6 +20,8 @@ import { CreatedSongDTOResponse } from 'src/song/dtos/addedSong.dto';
 import { auth } from 'firebase-admin';
 import { FirebaseAuthGuard } from 'src/authorization/firebase/firebase.guard';
 import { PutSongDTO } from 'src/song/dtos/putSong.dto';
+import { SongsDetailResponseDTO } from 'src/song/dtos/songDetails.dto';
+import { SwaggerMethods } from 'src/common/decorator/swagger.decorator';
 
 @ApiTags('song')
 @ApiBearerAuth()
@@ -36,30 +33,74 @@ export class SongController {
   constructor(@Inject(SongService) private readonly songService: SongService) {}
 
   @Get()
-  @ApiParam({
-    name: 'code',
+  @SwaggerMethods({
+    operation: {
+      summary: 'get all songs',
+      description: 'get all songs in a corresponding session',
+    },
+    param: { name: 'code', required: true },
+    responses: [
+      { status: HttpStatus.OK, type: SongsDetailResponseDTO },
+      {
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        description: 'user not registered',
+      },
+      {
+        status: HttpStatus.NOT_FOUND,
+        description: 'session not found',
+      },
+      { status: HttpStatus.UNAUTHORIZED, description: 'not having a token' },
+      {
+        status: HttpStatus.FORBIDDEN,
+        description:
+          'invalid token or (not having a/trying to access a different) session',
+      },
+    ],
   })
   @UseGuards(FirebaseAuthGuard)
   async getSongsHandler(
     @Param() param: { code: string },
     @Req() request: { user: auth.DecodedIdToken },
-  ) {
-    const data = await this.songService.getSongsBySessionCode(
+  ): Promise<SongsDetailResponseDTO> {
+    const { songs } = await this.songService.getSongsBySessionCode(
       request.user.uid,
       param.code,
     );
     return {
-      data,
+      data: {
+        songs,
+      },
     };
   }
 
   @Post()
-  @ApiOperation({
-    summary: 'Add new Song',
-    description: 'Add new Song to a session',
+  @HttpCode(HttpStatus.CREATED)
+  @SwaggerMethods({
+    operation: {
+      summary: 'Add a new song',
+      description: 'Add new Song to a session',
+    },
+    param: { name: 'code', required: true },
+    body: { type: AddSongDTO },
+    responses: [
+      { status: HttpStatus.CREATED, type: CreatedSongDTOResponse },
+      {
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        description: 'user not registered',
+      },
+      {
+        status: HttpStatus.NOT_FOUND,
+        description: 'session not found',
+      },
+      { status: HttpStatus.UNAUTHORIZED, description: 'not having a token' },
+      {
+        status: HttpStatus.FORBIDDEN,
+        description:
+          'invalid token or (not having a/trying to access a different) session',
+      },
+    ],
   })
-  // @UseGuards(GatewayGuard)
-  @UseGuards(FirebaseAuthGuard)
+  @UseGuards(GatewayGuard)
   async addSongHandler(
     @Param('code') sessionId: string,
     @Req() request: { user: auth.DecodedIdToken },
@@ -76,15 +117,36 @@ export class SongController {
   }
 
   @Put('/:songId')
-  @ApiOperation({
-    summary: 'do song action',
-    description: 'queueUp, queueDown, top and bottom to change the queue',
-  })
-  @ApiParam({
-    name: 'code',
-  })
-  @ApiParam({
-    name: 'songId',
+  @SwaggerMethods({
+    operation: {
+      summary: 'do song action',
+      description: 'queueUp, queueDown, top and bottom to change the queue',
+    },
+    params: [
+      { name: 'code', required: true },
+      { name: 'songId', required: true },
+    ],
+    body: { type: PutSongDTO },
+    responses: [
+      {
+        status: HttpStatus.OK,
+        description: 'successfully changed song position',
+      },
+      {
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        description: 'user not registered',
+      },
+      {
+        status: HttpStatus.NOT_FOUND,
+        description: 'session/songs not found ',
+      },
+      { status: HttpStatus.UNAUTHORIZED, description: 'not having a token' },
+      {
+        status: HttpStatus.FORBIDDEN,
+        description:
+          'invalid token or (not having a/trying to access a different) session',
+      },
+    ],
   })
   @UseGuards(GatewayGuard)
   async putSongHandler(
@@ -102,15 +164,32 @@ export class SongController {
 
   @Delete('/:songId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({
-    summary: 'delete song',
-    description: 'delete song by songId',
-  })
-  @ApiParam({
-    name: 'code',
-  })
-  @ApiParam({
-    name: 'songId',
+  @SwaggerMethods({
+    operation: {
+      summary: 'delete song',
+      description: 'delete song by songId',
+    },
+    params: [
+      { name: 'code', required: true },
+      { name: 'songId', required: true },
+    ],
+    responses: [
+      { status: HttpStatus.NO_CONTENT, description: 'succeeded deletion' },
+      {
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        description: 'user not registered',
+      },
+      {
+        status: HttpStatus.NOT_FOUND,
+        description: 'session/songs not found ',
+      },
+      { status: HttpStatus.UNAUTHORIZED, description: 'not having a token' },
+      {
+        status: HttpStatus.FORBIDDEN,
+        description:
+          'invalid token or (not having a/trying to access a different) session',
+      },
+    ],
   })
   @UseGuards(GatewayGuard)
   async deleteSongHandler(

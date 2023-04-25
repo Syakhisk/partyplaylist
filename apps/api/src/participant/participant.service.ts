@@ -1,7 +1,5 @@
 import {
   ForbiddenException,
-  HttpException,
-  HttpStatus,
   Inject,
   Injectable,
   forwardRef,
@@ -82,22 +80,23 @@ export class ParticipantService implements IParticipantService {
     );
 
     if (!session && payload.requestUID !== payload.userId)
-      throw new HttpException(
-        { message: 'participant cant kick another participant' },
-        HttpStatus.FORBIDDEN,
-      );
+      throw new ForbiddenException({
+        message: 'participant cant kick another participant',
+      });
     if (!session) {
-      await this.participantRepo.removeParticipantByUserId(payload.userId);
+      await this.participantRepo.removeParticipantByUserId(payload.requestUID);
       return;
     }
-    if (payload.code !== session.code)
-      throw new HttpException(
-        { message: 'host belong to another session' },
-        HttpStatus.FORBIDDEN,
-      );
+    if (session.code !== payload.code) {
+      throw new ForbiddenException({
+        message: 'host belong to another session',
+      });
+    }
+
     //payload.requestUID === payload.userId will never happened, cos host cant be a participant
     await this.participantRepo.removeParticipantByUserId(payload.userId);
   }
+
   @OnEvent(ServerEvent.UserOffline)
   async handleParticipantOffline(
     payload: ServerEventPayload[ServerEvent.UserOffline],

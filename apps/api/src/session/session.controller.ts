@@ -11,14 +11,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiBody,
-  ApiOperation,
-  ApiParam,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { auth } from 'firebase-admin';
 import { FirebaseAuthGuard } from 'src/authorization/firebase/firebase.guard';
 import { GatewayGuard } from 'src/gateway/gateway.guard';
@@ -27,6 +20,7 @@ import { CreatedSessionDTOResponse } from 'src/session/dtos/createdSession.dto';
 import { SessionDetailDTOResponse } from 'src/session/dtos/getSessionDetail.dto';
 import { SessionService } from 'src/session/session.service';
 import { SwaggerMethods } from 'src/common/decorator/swagger.decorator';
+import { MySessionDTOResponse } from 'src/session/dtos/mySession.dto';
 
 @ApiTags('session')
 @ApiBearerAuth()
@@ -39,21 +33,34 @@ export class SessionController {
     @Inject(SessionService) private readonly sessionService: SessionService,
   ) {}
 
-  @Post()
+  @Post('/')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({
-    summary: 'Create session',
-    description: 'create a session as you being the host',
+  @SwaggerMethods({
+    operation: {
+      summary: 'Create session',
+      description: 'create a session as you being the host',
+    },
+    body: {
+      type: CreateSessionDTO,
+    },
+    responses: [
+      { status: HttpStatus.CREATED, type: CreatedSessionDTOResponse },
+      {
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        description:
+          'user not registered or might already have/joined a session',
+      },
+      {
+        status: HttpStatus.UNAUTHORIZED,
+        description: 'not having a token',
+      },
+      {
+        status: HttpStatus.FORBIDDEN,
+        description: 'invalid token or not online',
+      },
+    ],
   })
-  @ApiBody({
-    type: CreateSessionDTO,
-  })
-  @ApiResponse({
-    type: CreatedSessionDTOResponse,
-    status: HttpStatus.CREATED,
-  })
-  // @UseGuards(GatewayGuard)
-  @UseGuards(FirebaseAuthGuard)
+  @UseGuards(GatewayGuard)
   async postSessionHandler(
     @Req()
     request: {
@@ -73,17 +80,50 @@ export class SessionController {
     };
   }
 
+  @Get('/me')
+  @SwaggerMethods({
+    responses: [{ status: HttpStatus.BAD_REQUEST }],
+  })
+  @UseGuards(GatewayGuard)
+  async mySession(
+    @Req() request: { user: auth.DecodedIdToken },
+  ): Promise<MySessionDTOResponse> {
+    const session = await this.sessionService.getMySession(request.user.uid);
+    return {
+      data: session,
+    };
+  }
+
   @Get('/:code')
-  @ApiOperation({
-    summary: 'Get Session Detail',
-    description: 'get session detail that user currently in',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: SessionDetailDTOResponse,
-  })
-  @ApiParam({
-    name: 'code',
+  @SwaggerMethods({
+    operation: {
+      summary: 'Get Session Detail',
+      description: 'get session detail that user currently in',
+    },
+    param: {
+      name: 'code',
+      required: true,
+    },
+    responses: [
+      { status: HttpStatus.OK, type: SessionDetailDTOResponse },
+      {
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        description: 'user not registered',
+      },
+      { status: HttpStatus.NOT_FOUND, description: 'session is not found' },
+      {
+        status: HttpStatus.FORBIDDEN,
+        description: '(trying to access a different/not having) session',
+      },
+      {
+        status: HttpStatus.UNAUTHORIZED,
+        description: 'not having a token',
+      },
+      {
+        status: HttpStatus.FORBIDDEN,
+        description: 'invalid token',
+      },
+    ],
   })
   @UseGuards(FirebaseAuthGuard)
   async getSessionDetailHandler(
@@ -102,15 +142,32 @@ export class SessionController {
 
   @Delete('/:code')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({
-    summary: 'End a Session ',
-    description: 'End a Session by host',
-  })
-  @ApiParam({
-    name: 'code',
-  })
-  @ApiResponse({
-    status: HttpStatus.NO_CONTENT,
+  @SwaggerMethods({
+    operation: {
+      summary: 'End a Session ',
+      description: 'End a Session by host',
+    },
+    param: {
+      name: 'code',
+      required: true,
+    },
+    responses: [
+      { status: HttpStatus.NO_CONTENT, description: 'success deletion' },
+      {
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        description: 'user not registered',
+      },
+      { status: HttpStatus.NOT_FOUND, description: 'session not found' },
+      {
+        status: HttpStatus.UNAUTHORIZED,
+        description: 'not having a token',
+      },
+      {
+        status: HttpStatus.FORBIDDEN,
+        description:
+          'invalid token, not online, or (not having/trying to delete another) session',
+      },
+    ],
   })
   @UseGuards(GatewayGuard)
   async endSessionByHostHandler(
@@ -118,16 +175,6 @@ export class SessionController {
     @Param() params: { code: string },
   ) {
     await this.sessionService.endSession(request.user.uid, params.code);
-  }
-
-  @Get('/me')
-  @SwaggerMethods({})
-  @UseGuards(GatewayGuard)
-  async mySession(@Req() request: { user: auth.DecodedIdToken }) {
-    const session = await this.sessionService.getMySession(request.user.uid);
-    return {
-      data: session,
-    };
   }
 
   @Post('/:code/join')
@@ -141,16 +188,20 @@ export class SessionController {
       required: true,
     },
     responses: [
+      {
+        status: HttpStatus.OK,
+        description: 'Sucessfully join to a session',
+      },
       { status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' },
       { status: HttpStatus.NOT_FOUND, description: 'Session not found' },
       {
-        // TODO: this should be OK than CREATED
-        status: HttpStatus.CREATED,
-        description: 'Sucessfully join to a session',
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        description:
+          'user not registered, user already have/joined to a session',
       },
       {
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
-        description: 'User already joined to a session',
+        status: HttpStatus.FORBIDDEN,
+        description: 'invalid token or not online',
       },
     ],
   })
